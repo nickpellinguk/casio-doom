@@ -129,7 +129,7 @@ blob at this size, and gems and keys are left out.
 
 ## Frak! front screen, compact version
 
-![The compact Frak! screen building up over 1 minute 40 seconds](media/frak7000.gif)
+![The compact Frak! screen building up](media/frak7000.gif)
 
 The same screen, aimed at the fx-7000G's 422 steps and looking more like the
 game. Everything is drawn by the binary column renderer as pixel art:
