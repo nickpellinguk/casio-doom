@@ -154,19 +154,19 @@ It's five programs in `examples/frak7000/`, all made by `generate.py`:
 
 | Program | File | Bytes | Does |
 |---|---|---|---|
-| Prog 0 | `screen.fx` | 308 | sets up and places everything |
+| Prog 0 | `screen.fx` | 297 | sets up and places everything |
 | Prog 1 | `repeat.fx` | 40 | draws a bitmap N times in a row or column |
 | Prog 2 | `pair.fx` | 16 | draws Prog 1 twice, S columns apart |
-| Prog 3 | `scrubbly.fx` | 37 | a Scrubbly: two numbers, mirrored, placed by its mirror axis |
+| Prog 3 | `scrubbly.fx` | 33 | a Scrubbly: two numbers, mirrored, placed by its mirror axis |
 | Prog 4 | `render.fx` | 75 | the renderer, with mirroring |
 
 ```bash
 ./build/fxrun examples/frak7000/run.txt
 ```
 
-**Size:** 470 bytes on the calculator (`bytes.py` gives the same per-file
+**Size:** 455 bytes on the calculator (`bytes.py` gives the same per-file
 counts, with a few bytes' difference in the total). That's down from 1178 for
-the outline version, but still 48 over the fx-7000G's 422. Roughly 290 bytes
+the outline version, but still 33 over the fx-7000G's 422. Roughly 290 bytes
 go on placing 22 objects, so getting under 422 means leaving some out. It
 draws in about a minute and a half of calculator time.
 
@@ -197,9 +197,19 @@ Two limits shaped it:
 - **Simplified:** the 2-block platform at the bottom right is a single
   ledge, under the short ladder. It has no partner 42 columns away, so it
   costs its own call (8 bytes).
-- **Magic numbers last:** I searched for shorter forms (powers, squares,
-  EXP notation) for every number and found none: they're effectively random
-  bit patterns. Shrinking the sprites saved far more.
+- **Magic numbers last:** no number has a shorter form (powers, squares,
+  EXP notation): they're effectively random bit patterns. The final pass
+  found other small savings instead:
+  - `Range` clears the graph screen, so `Cls` isn't needed.
+  - The Scrubbly's second number held column 5, which the mirror draws
+    anyway; with it zeroed the number is 5 digits, not 9.
+  - Staircase steps of 1 and −2 instead of 1.4 and −2.1.
+  - The bottom ledges are 3 rows higher, so the Trogg's top row is 17, where
+    the ladders leave C. The lower ladders now reach their ledges, and the
+    ladder above the Trogg comes down to his head, as in the original.
+  - Tried and rejected: `Mcl` doesn't clear variables inside a program;
+    `Range` with five values draws an axis; a condition needs a comparison
+    (`Frac D⇒` is a syntax error).
 
 ## Binary column renderer
 
