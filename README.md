@@ -26,6 +26,8 @@ This repository has:
   **`examples/pong-play.txt`**, which types it in and plays a demo game.
 - **`examples/mandel.fx`**, the world's slowest Mandelbrot generator (see
   below), and **`examples/mandel-run.txt`**, which runs it.
+- **`examples/frak/`**, a mock-up of the Frak! level 1 front screen (see
+  below).
 
 ## Pong
 
@@ -86,6 +88,40 @@ minutes later.
 The FX-8000G is the fx-7000G's sibling: same 96×64 screen, keyboard and
 programming language, but with more program memory. Anything drawn here works
 the same way on an fx-7000G, as long as it fits in that model's 422 steps.
+
+## Frak! front screen
+
+![The Frak! level 1 front screen drawn on the calculator](media/frak.gif)
+
+A mock-up (not playable) of the first screen of Frak! level 1: the Trogg in
+outline at the bottom left, three Scrubblies, the ledges with their rock
+baskets, and the ladders. Positions come from `room_A_1` in
+[steamfrak](https://github.com/nickpellinguk/steamfrak), scaled down about
+3 times; the sprites are hand-drawn outlines based on the BBC Micro ones.
+
+It's four programs in `examples/frak/`:
+
+| Program | File | Draws |
+|---|---|---|
+| Prog 0 | `screen.fx` | the screen, calling the others |
+| Prog 1 | `ledge.fx` | a run of ledge segments (A, B = left end and top, N = segments) |
+| Prog 2 | `ladder.fx` | a ladder (A, B = centre and top, L = length) |
+| Prog 3 | `scrubbly.fx` | a Scrubbly (A, B = feet) |
+
+```bash
+./build/fxrun examples/frak/run.txt
+```
+
+It draws in about 23 seconds of calculator time and uses 1178 bytes, so it
+needs the FX-8000G's memory: it won't fit in an fx-7000G's 422 steps.
+
+`examples/frak/generate.py` rebuilds the listings from the room data. It
+expects a steamfrak checkout next to this repository, or its path as an
+argument.
+
+Approximations: the view is the left 290 pixels of the room. The ladder behind
+the Trogg stops above his head, because overlapping outlines merge into a
+blob at this size, and gems and keys are left out.
 
 ## Build and run
 
@@ -194,6 +230,10 @@ ATAN`. The map came from pressing SHIFT with every key:
   (you can't flip to the graph while it waits), and `Plot x,y◢`, which stops
   on the graph with a pointer you move with the arrow keys. There's no way to
   read a key while a program keeps running.
+- Programs can call each other as subroutines (`Prog 1`), sharing the
+  variables A–Z; the called program returns when it ends.
+- In WRT mode, the program-slot cursor stays on the last slot used and wraps
+  from 9 to 0, so moving to a slot means counting from where it is.
 - `◢` ends a statement, like `:`, and needs something before it.
   `Plot 3,31◢Y→H` works; a `◢` alone on a line is a syntax error.
 
