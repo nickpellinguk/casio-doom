@@ -58,9 +58,9 @@ def grid(art):
 
 def numbers(art, per):
     """One number per `per` columns: each column's dots in binary, lowest
-    digit = bottom row, the next column's digits following on above."""
+    digit = top row, the next column's digits following on."""
     g = grid(art); h = len(g); w = len(g[0])
-    cols = [sum(1 << k for k in range(h) if g[h - 1 - k][x] == '#') for x in range(w)]
+    cols = [sum(1 << k for k in range(h) if g[k][x] == '#') for x in range(w)]
     out = []
     for i in range(0, w, per):
         out.append(sum(c << (h * j) for j, c in enumerate(cols[i:i + per])))
@@ -72,8 +72,8 @@ def write(name, lines):
 # Prog 4: the renderer
 write('render.fx', [
     '# Prog 4: bit renderer. Draws W columns of H dots from the number D,',
-    '# starting at column A with the bottom row at C. Each column is H binary',
-    '# digits of D, lowest at the bottom: 1 = dot. Leaves A on the next column.',
+    '# starting at column A with the top row at C. Each column is H binary',
+    '# digits of D, lowest at the top: 1 = dot. Leaves A on the next column.',
     '# Each dot is also plotted mirrored, at column E-A: E is the mirror axis',
     '# times two for symmetric sprites, and 0 or negative (off-screen, so',
     '# nothing shows) otherwise.',
@@ -81,7 +81,7 @@ write('render.fx', [
     'Lbl 1',
     'C→B:H→U',
     'Lbl 2',
-    'D÷2→D:Frac D≠0⇒Plot A,B:Frac D≠0⇒Plot E-A,B:Int D→D:B+1→B',
+    'D÷2→D:Frac D≠0⇒Plot A,B:Frac D≠0⇒Plot E-A,B:Int D→D:B-1→B',
     'Dsz U:Goto 2',
     'A+1→A',
     'Dsz V:Goto 1'])
@@ -92,7 +92,7 @@ write('render.fx', [
 (rung,), rw, rh = numbers(LADDER, 3)
 write('repeat.fx', [
     '# Prog 1: draws the bitmap P (W columns of H dots) N times, starting at',
-    '# column A with the bottom row at C. After each copy it moves on W',
+    '# column A with the top row at C. After each copy it moves on W',
     '# columns plus E, and up F rows. N and C are left unchanged.',
     'N→K:C→J',
     'Lbl 1',
@@ -105,7 +105,7 @@ write('repeat.fx', [
 nums, w, h = numbers(SCRUBBLY, 3)
 half = nums[:(w // 2 + 1 + 2) // 3]          # numbers covering columns 0..5
 write('scrubbly.fx', [
-    f'# Prog 3: a Scrubbly ({w}x{h} pixels), left column A, feet on row C.',
+    f'# Prog 3: a Scrubbly ({w}x{h} pixels), left column A, top row C.',
     '# It is left-right symmetric, so only columns 0-5 are stored (three per',
     f'# number) and the renderer mirrors them: E = 2A+{w - 1} puts the mirror',
     '# axis on the centre column. The main program sets W=3 and H=11.',
@@ -121,31 +121,32 @@ write('screen.fx', [
     'Range 1,95,0,1,63,0',
     'Cls',
     f'# ledges: a {lw}x{lh} segment (strip and rock basket) repeated to the right.',
-    '# A = left end, C = bottom row, N = segments',
+    '# A = left end, C = top row, N = segments',
     f'{seg}→P:{lw}→W:{lh}→H:0→E:0→F',
-    '45→C:6→N:11→A:Prog 1:53→A:Prog 1',
+    '48→C:6→N:11→A:Prog 1:53→A:Prog 1',
     '# the middle-left platform is 6 blocks too (5 in the original), so N is shared',
-    '26→C:11→A:Prog 1:1→N:78→A:Prog 1',
+    '29→C:11→A:Prog 1:1→N:78→A:Prog 1',
     '# the staircase: five single ledges, each 20 room pixels right and 7 down',
     '# from the last (about 6.4 and 2.1 here; Prog 1 already moves A on 5)',
     '53→A:5→G',
     'Lbl 1',
     'Prog 1:A+1.4→A:C-2.1→C:Dsz G:Goto 1',
-    '2→C:10→A:Prog 1:53→A:Prog 1:2→N:77→A:Prog 1',
+    '5→C:10→A:Prog 1:53→A:Prog 1:2→N:77→A:Prog 1',
     f'# ladders: a {rw}x{rh} segment (a pole with three rungs) hung below a ledge;',
     '# each ladder is one segment, or two for the long one (they may overlap).',
-    '# A = left column, C = bottom row, N = segments',
+    '# A = left column, C = top row, N = segments',
     f'{rung}→P:{rw}→W:{rh}→H:(-){rw}→E:(-){rh}→F',
-    '36→C:1→N:13→A:Prog 1:54→A:Prog 1:80→A:Prog 1',
-    '8→C:80→A:Prog 1:18→C:13→A:Prog 1:2→N:54→A:Prog 1',
+    '44→C:1→N:13→A:Prog 1:54→A:Prog 1:80→A:Prog 1',
+    '# the short one under the staircase goes last: its top row, 16, is also the Trogg\'s',
+    '26→C:13→A:Prog 1:2→N:54→A:Prog 1:1→N:16→C:80→A:Prog 1',
     '# sprites: three 11-row columns per number (up to 10 digits); W is',
     '# already 3 from the ladders',
     '11→H',
     f'# the Trogg ({tw}x{th} pixels), standing on the bottom-left ledge; drawn',
     '# before the Scrubblies, while E is still -3 so his mirror image is off-screen',
-    '7→A:6→C:' + ':'.join(f'{n}→D:Prog 4' for n in tnums),
-    '# Scrubblies: A = left column, C = feet',
-    '49→C:24→A:Prog 3:63→A:Prog 3:26→C:63→A:Prog 3',
+    '7→A:' + ':'.join(f'{n}→D:Prog 4' for n in tnums),
+    '# Scrubblies: A = left column, C = top row',
+    '59→C:24→A:Prog 3:63→A:Prog 3:36→C:63→A:Prog 3',
     '# show the finished screen (y=0 is off-screen, so nothing is drawn)',
     'Graph Y=0'])
 print('Trogg', tnums, '\nScrubbly', nums, '\nledge', seg, '\nladder', rung)

@@ -1,5 +1,5 @@
 # Prog 1: draws the bitmap P (W columns of H dots) N times, starting at
-# column A with the bottom row at C. After each copy it moves on W
+# column A with the top row at C. After each copy it moves on W
 # columns plus E, and up F rows. N and C are left unchanged.
 N→K:C→J
 Lbl 1
