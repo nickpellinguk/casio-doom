@@ -62,6 +62,11 @@ def numbers(art, per):
         out.append(sum(c << (h * j) for j, c in enumerate(cols[i:i + per])))
     return out, w, h
 
+# letters that hold the sprite numbers (set beforehand by setup.fx); none
+# of them is used by the programs for anything else
+TROGG_VARS = ['T', 'R', 'G']
+SCRUB_VARS = ['M', 'Z']
+
 def write(name, lines):
     open(os.path.join(HERE, name), 'w').write('\n'.join(lines) + '\n')
 
@@ -117,9 +122,10 @@ write('scrubbly.fx', [
     f'# axis: it is left-right symmetric, so only columns 0-{w // 2} are stored',
     '# (three per number, the columns past the centre left empty) and the',
     '# renderer mirrors them. E is left unchanged,',
-    '# so two Scrubblies in the same column only need a new C.',
+    '# so two Scrubblies in the same column only need a new C. Its two numbers',
+    '# are stored in M and Z beforehand (setup.fx).',
     f'# W=3 and H={h} are already set by the ladders.',
-    f'E÷2-{(w - 1) // 2}→A:' + ':'.join(f'{n}→D:Prog 4' for n in half)])
+    f'E÷2-{(w - 1) // 2}→A:' + ':'.join(f'{v}→D:Prog 4' for v in SCRUB_VARS)])
 
 # Prog 0: the screen
 tnums, tw, th = numbers(TROGG, 3)
@@ -129,11 +135,12 @@ write('screen.fx', [
     '# bit renderer (Prog 4). Prog 1 repeats a bitmap (ledges, ladders), Prog 2',
     '# draws a pair S columns apart, Prog 3 draws a Scrubbly. Values shared',
     '# between calls are set once.',
-    '# (Range also clears the graph screen, so no Cls is needed)',
-    'Range 1,95,0,1,63,0',
+    '# Before running: set the Range to 1,95,0,1,63,0 on the Range screen (which',
+    '# also clears the graph) and run the assignments in setup.fx, which put the',
+    '# sprite and segment numbers in letters: they cost no program steps there.',
     f'# ledges: a {lw}x{lh} segment (strip and rock basket) repeated to the right.',
     '# A = left end, C = top row, N = segments',
-    f'{seg}→P:{lw}→W:{lh}→H:0→E:0→F:42→S',
+    f'I→P:{lw}→W:{lh}→H:0→E:0→F:42→S',
     '48→C:6→N:11→A:Prog 2',
     '# the middle-left platform is 6 blocks too (5 in the original), so N is shared',
     '29→C:11→A:Prog 1:1→N:78→A:Prog 1',
@@ -149,7 +156,7 @@ write('screen.fx', [
     f'# ladders: a {rw}x{rh} segment (a pole with three rungs) hung below a ledge;',
     '# each ladder is one segment (the long one is two calls; they may overlap).',
     '# A = left column, C = top row, N = segments',
-    f'{rung}→P:{rw}→W:{rh}→H:(-){rw}→E:(-){rh}→F',
+    f'L→P:{rw}→W:{rh}→H:(-){rw}→E:(-){rh}→F',
     '44→C:1→N:13→A:Prog 2:80→A:Prog 1',
     '# the long ladder is two single segments, so its top half pairs with the left',
     '# one; A is then 55 (a ladder call leaves A where it was), so its bottom half',
@@ -159,9 +166,17 @@ write('screen.fx', [
     f'# the Trogg ({tw}x{th} pixels), standing on the bottom-left ledge (C is',
     '# already 17 from the ladders); drawn',
     '# before the Scrubblies, while E is still -3 so his mirror image is off-screen',
-    '7→A:' + ':'.join(f'{n}→D:Prog 4' for n in tnums),
+    '7→A:' + ':'.join(f'{v}→D:Prog 4' for v in TROGG_VARS),
     '# Scrubblies: E = twice the centre column, C = top row',
     '57→C:58→E:Prog 3:136→E:Prog 3:34→C:Prog 3',
     '# show the finished screen (y=0 is off-screen, so nothing is drawn)',
     'Graph Y=0'])
+write('setup.fx', [
+    '# Run these in RUN mode before Prog 0 (after setting the Range to',
+    '# 1,95,0,1,63,0). Letter variables are separate from program memory,',
+    '# so these numbers cost no program steps.',
+    f'{seg}→I',
+    f'{rung}→L',
+    ] + [f'{n}→{v}' for n, v in zip(tnums, TROGG_VARS)]
+      + [f'{n}→{v}' for n, v in zip(half, SCRUB_VARS)])
 print('Trogg', tnums, '\nScrubbly', nums, '\nledge', seg, '\nladder', rung)

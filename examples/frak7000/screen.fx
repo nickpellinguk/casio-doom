@@ -3,11 +3,12 @@
 # bit renderer (Prog 4). Prog 1 repeats a bitmap (ledges, ladders), Prog 2
 # draws a pair S columns apart, Prog 3 draws a Scrubbly. Values shared
 # between calls are set once.
-# (Range also clears the graph screen, so no Cls is needed)
-Range 1,95,0,1,63,0
+# Before running: set the Range to 1,95,0,1,63,0 on the Range screen (which
+# also clears the graph) and run the assignments in setup.fx, which put the
+# sprite and segment numbers in letters: they cost no program steps there.
 # ledges: a 5x4 segment (strip and rock basket) repeated to the right.
 # A = left end, C = top row, N = segments
-219475→P:5→W:4→H:0→E:0→F:42→S
+I→P:5→W:4→H:0→E:0→F:42→S
 48→C:6→N:11→A:Prog 2
 # the middle-left platform is 6 blocks too (5 in the original), so N is shared
 29→C:11→A:Prog 1:1→N:78→A:Prog 1
@@ -23,7 +24,7 @@ Range 1,95,0,1,63,0
 # ladders: a 3x9 segment (a pole with three rungs) hung below a ledge;
 # each ladder is one segment (the long one is two calls; they may overlap).
 # A = left column, C = top row, N = segments
-19398217→P:3→W:9→H:(-)3→E:(-)9→F
+L→P:3→W:9→H:(-)3→E:(-)9→F
 44→C:1→N:13→A:Prog 2:80→A:Prog 1
 # the long ladder is two single segments, so its top half pairs with the left
 # one; A is then 55 (a ladder call leaves A where it was), so its bottom half
@@ -33,7 +34,7 @@ Range 1,95,0,1,63,0
 # the Trogg (9x9 pixels), standing on the bottom-left ledge (C is
 # already 17 from the ladders); drawn
 # before the Scrubblies, while E is still -3 so his mirror image is off-screen
-7→A:126371864→D:Prog 4:52308745→D:Prog 4:656699→D:Prog 4
+7→A:T→D:Prog 4:R→D:Prog 4:G→D:Prog 4
 # Scrubblies: E = twice the centre column, C = top row
 57→C:58→E:Prog 3:136→E:Prog 3:34→C:Prog 3
 # show the finished screen (y=0 is off-screen, so nothing is drawn)

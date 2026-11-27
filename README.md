@@ -142,33 +142,56 @@ game. Everything is drawn by the binary column renderer as pixel art:
   it also plots each dot at column E−A, where E is twice the mirror axis. For
   everything else E is 0 or negative, so the mirror image lands off-screen,
   which the calculator silently ignores.
-- **Ledges:** one 5×4 segment (a strip with a rock basket), number 829868,
+- **Ledges:** one 5×4 segment (a strip with a rock basket), number 219475,
   repeated to the right.
 - **Ladders:** one 3×9 segment, a pole with three rungs (number
-  76807972), like the BBC ladder sprite. Each ladder is one segment, or two
+  19398217), like the BBC ladder sprite. Each ladder is one segment, or two
   for the long one, overlapping the ledges where it needs to. (A 5-wide
   segment three rungs tall would be 45 binary digits, too many for one
   number.)
 
-It's five programs in `examples/frak7000/`, all made by `generate.py`:
+It's five programs in `examples/frak7000/`, plus a little setup, all made by
+`generate.py`:
 
 | Program | File | Bytes | Does |
 |---|---|---|---|
-| Prog 0 | `screen.fx` | 297 | sets up and places everything |
+| Prog 0 | `screen.fx` | 250 | places everything |
 | Prog 1 | `repeat.fx` | 40 | draws a bitmap N times in a row or column |
 | Prog 2 | `pair.fx` | 16 | draws Prog 1 twice, S columns apart |
-| Prog 3 | `scrubbly.fx` | 33 | a Scrubbly: two numbers, mirrored, placed by its mirror axis |
+| Prog 3 | `scrubbly.fx` | 22 | a Scrubbly: two numbers, mirrored, placed by its mirror axis |
 | Prog 4 | `render.fx` | 75 | the renderer, with mirroring |
+
+**Setup, by hand in RUN mode, before running Prog 0:**
+
+1. Set the Range to `1, 95, 0, 1, 63, 0` on the Range screen. That also
+   clears the graph.
+2. Store the sprite and segment numbers in letters (`setup.fx`):
+
+   ```
+   219475→I
+   19398217→L
+   126371864→T
+   52308745→R
+   656699→G
+   90786392→M
+   34266→Z
+   ```
+
+The 26 letter variables are separate from program memory, so these cost no
+program steps, and the programs use one letter for each number instead of up
+to 9 digits. Both settings survive between runs; running Prog 0 again just
+redraws the same picture over itself.
 
 ```bash
 ./build/fxrun examples/frak7000/run.txt
 ```
 
-**Size:** 455 bytes on the calculator (`bytes.py` gives the same per-file
-counts, with a few bytes' difference in the total). That's down from 1178 for
-the outline version, but still 33 over the fx-7000G's 422. Roughly 290 bytes
-go on placing 22 objects, so getting under 422 means leaving some out. It
-draws in about a minute and a half of calculator time.
+**Size:** 397 bytes on the calculator, which **fits the fx-7000G's 422 steps**
+with 25 to spare. (`bytes.py` gives the per-file counts; its total is a few
+bytes higher.) It started at 1178 for the outline version; moving the setup
+out of Prog 0 took it from 455 to 397. It draws in about a minute and a half
+of calculator time. It's only been run on the emulated FX-8000G, not on a
+real fx-7000G.
 
 Two limits shaped it:
 

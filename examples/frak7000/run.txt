@@ -38,8 +38,27 @@ press MODE 2
 wait 300
 shot out/f7-mode.pgm
 
+# set up by hand in RUN mode: the Range (on the Range screen), then the
+# sprite numbers in letter variables
 press MODE 1
 wait 300
+press AC
+press RANGE
+wait 300
+type 1
+press EXE
+type 95
+press EXE
+type 0
+press EXE
+type 1
+press EXE
+type 63
+press EXE
+type 0
+press EXE
+wait 300
+program examples/frak7000/setup.fx
 press AC
 type Prog 0
 press EXE
