@@ -1,7 +1,7 @@
 # Builds the compact Frak! front screen (aimed at the fx-7000G's 422 steps):
 # pixel-art sprites drawn by the bit renderer, packed two columns per number.
-# Writes screen.fx (Prog 0), repeat.fx (Prog 1), scrubbly.fx (Prog 3) and
-# render.fx (Prog 4).
+# Writes screen.fx (Prog 0), repeat.fx (Prog 1), pair.fx (Prog 2),
+# scrubbly.fx (Prog 3) and render.fx (Prog 4).
 #
 # Usage:  python3 examples/frak7000/generate.py
 import os
@@ -89,12 +89,19 @@ write('render.fx', [
 write('repeat.fx', [
     '# Prog 1: draws the bitmap P (W columns of H dots) N times, starting at',
     '# column A with the top row at C. After each copy it moves on W',
-    '# columns plus E, and up F rows. N and C are left unchanged.',
+    '# columns plus E, and F rows (negative = down). N and C are left unchanged.',
     'N→K:C→J',
     'Lbl 1',
     'P→D:Prog 4:A+E→A:C+F→C',
     'Dsz K:Goto 1',
     'J→C'])
+
+# Prog 2: a pair. Many objects come in pairs 42 columns apart (the left and
+# right halves of the screen), so this draws Prog 1 at A and at A+42.
+write('pair.fx', [
+    '# Prog 2: draws Prog 1 twice: at column A and 42 columns to the right.',
+    '# Many objects on this screen come in pairs that far apart.',
+    'A→Q:Prog 1:Q+42→A:Prog 1'])
 
 # Prog 3: Scrubbly. It's symmetric, so only the left half and the centre
 # column are stored, and the renderer mirrors them about the centre.
@@ -112,14 +119,15 @@ tnums, tw, th = numbers(TROGG, 3)
 write('screen.fx', [
     '# Frak! front screen (level 1) for the Casio fx-7000G / FX-8000G.',
     '# Layout from room_A_1 in steamfrak; sprites are pixel art drawn by the',
-    '# bit renderer (Prog 4). Prog 1 repeats a bitmap (ledges, ladders),',
-    '# Prog 3 draws a Scrubbly. Values shared between calls are set once.',
+    '# bit renderer (Prog 4). Prog 1 repeats a bitmap (ledges, ladders), Prog 2',
+    '# draws a pair 42 columns apart, Prog 3 draws a Scrubbly. Values shared',
+    '# between calls are set once.',
     'Range 1,95,0,1,63,0',
     'Cls',
     f'# ledges: a {lw}x{lh} segment (strip and rock basket) repeated to the right.',
     '# A = left end, C = top row, N = segments',
     f'{seg}→P:{lw}→W:{lh}→H:0→E:0→F',
-    '48→C:6→N:11→A:Prog 1:53→A:Prog 1',
+    '48→C:6→N:11→A:Prog 2',
     '# the middle-left platform is 6 blocks too (5 in the original), so N is shared',
     '29→C:11→A:Prog 1:1→N:78→A:Prog 1',
     '# the staircase: five single ledges, each 20 room pixels right and 7 down',
@@ -127,13 +135,14 @@ write('screen.fx', [
     '53→A:5→G',
     'Lbl 1',
     'Prog 1:A+1.4→A:C-2.1→C:Dsz G:Goto 1',
-    '5→C:10→A:Prog 1:53→A:Prog 1:2→N:77→A:Prog 1',
+    '5→C:11→A:Prog 2:2→N:77→A:Prog 1',
     f'# ladders: a {rw}x{rh} segment (a pole with three rungs) hung below a ledge;',
     '# each ladder is one segment, or two for the long one (they may overlap).',
     '# A = left column, C = top row, N = segments',
     f'{rung}→P:{rw}→W:{rh}→H:(-){rw}→E:(-){rh}→F',
-    '44→C:1→N:13→A:Prog 1:54→A:Prog 1:80→A:Prog 1',
-    '16→C:80→A:Prog 1:26→C:13→A:Prog 1:2→N:54→A:Prog 1',
+    '44→C:1→N:13→A:Prog 2:80→A:Prog 1',
+    '# the long ladder is two single segments, so its top half pairs with the left one',
+    '26→C:13→A:Prog 2:17→C:55→A:Prog 1:80→A:Prog 1',
     f'# sprites: {th} rows tall like the ladder segment, so W=3 and H={th} carry over',
     f'# the Trogg ({tw}x{th} pixels), standing on the bottom-left ledge; drawn',
     '# before the Scrubblies, while E is still -3 so his mirror image is off-screen',

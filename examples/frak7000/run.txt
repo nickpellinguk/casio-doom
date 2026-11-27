@@ -1,4 +1,4 @@
-# Types the compact Frak! front screen into Prog 0, 1, 3 and 4 and draws it.
+# Types the compact Frak! front screen into Prog 0-4 and draws it.
 # Run with:  ./build/fxrun examples/frak7000/run.txt
 
 wait 1500
@@ -12,7 +12,13 @@ program examples/frak7000/repeat.fx
 press AC
 press MODE 2
 wait 300
-press RIGHT*2
+press RIGHT
+press EXE
+program examples/frak7000/pair.fx
+press AC
+press MODE 2
+wait 300
+press RIGHT
 press EXE
 program examples/frak7000/scrubbly.fx
 press AC
