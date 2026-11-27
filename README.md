@@ -3,16 +3,25 @@
 Can a 1985 Casio graphing calculator run Doom? No. Can it draw something that
 looks like Doom from across the room? Yes.
 
-![Fake Doom being typed in and drawn](media/doom-fast.gif)
+![The DOOM program running, in real time](media/doom-program.gif)
+
+That's a stored program running at the calculator's real speed: an enemy
+walks towards you over four frames, then you fire. Each frame is a full clear
+and redraw, so it runs at about half a frame per second.
 
 This repository has:
 
+- **`examples/doom.fx`**, the program: a 367-byte listing you can type into a
+  real fx-7000G or FX-8000G.
 - **`fxrun`**, a command-line, scriptable build of Piotr Piatek's
   [Casio FX-8000G emulator](https://pisi.com.pl/piotr433/fx8000ee.htm). It
   needs no window, Wine or virtual display. It runs the real ROM in emulated
   time, much faster than real time, and saves screenshots or animation frames.
-- **`examples/doom.txt`**, a key script that types in and draws a
-  first-person corridor, a gun and an enemy.
+- **`examples/doom-prog.txt`**, a key script that types the program into
+  Prog 0 in WRT mode, checks the memory used, and runs it.
+- **`examples/doom.txt`**, the earlier version: the same scene typed as
+  direct commands at the RUN prompt, without storing a program.
+  ![Fake Doom typed as direct commands](media/doom-fast.gif)
 
 The FX-8000G is the fx-7000G's sibling: same 96×64 screen, keyboard and
 programming language, but with more program memory. Anything drawn here works
@@ -28,11 +37,11 @@ Needs Free Pascal 3.2 (`apt-get install fp-compiler`), plus `curl` and
 ```
 
 ```bash
-./build/fxrun examples/doom.txt
+./build/fxrun examples/doom-prog.txt
 ```
 
 ```bash
-convert out/doom.pgm out/doom.png
+convert out/doom-prog.pgm out/doom-prog.png
 ```
 
 `build.sh` runs `fetch.sh` the first time. That downloads the emulator's
@@ -40,11 +49,25 @@ Lazarus port (version 13) from Piotr Piatek's site and copies its core units
 into `src/` and its ROM images into `rom/`. Neither is stored in this
 repository: the core is Piotr Piatek's code and the ROMs are Casio's firmware.
 
-To rebuild the animation from the recorded frames:
+To turn the recorded frames into an animation:
 
 ```bash
-convert -delay 10 -loop 0 out/frames/frame*.pgm -resize 50% -colors 2 -layers Optimize out/doom.gif
+convert -delay 10 -loop 0 out/prog-frames/frame*.pgm -resize 50% -colors 2 -layers Optimize out/doom-program.gif
 ```
+
+## Typing the program into a real calculator
+
+1. Press `MODE` `2` for WRT mode, then `EXE` to open Prog 0.
+2. Type each line of `examples/doom.fx`, pressing `EXE` at the end of each
+   one. Skip the `#` comment lines.
+   - `->` is the → key, `=>` is SHIFT 7, and `/` is the ÷ key.
+   - `Range` is the RANGE key. `Plot`, `Line`, `Cls`, `Lbl` and `Goto` are
+     SHIFT functions (see the key map below).
+3. Press `MODE` `1` for RUN mode, then type `Prog 0` and press `EXE`.
+
+On the emulator, the program takes 367 bytes (1446 free before, 1079 after).
+That should fit in the fx-7000G's 422 steps, since each command and character
+takes one step on that model, but I haven't tested it on real hardware.
 
 ## How it works
 
@@ -69,7 +92,8 @@ starting with `#` are comments.
 |---|---|
 | `wait MS` | run for MS milliseconds of calculator time |
 | `press KEY ...` | press keys in turn; `KEY*N` repeats a key |
-| `type TEXT` | type digits, operators, `,` `:` and letters (via ALPHA) |
+| `type TEXT` | type text: program keywords (`Plot`, `Line`, `Range`, `Cls`, `Lbl`, `Goto`, `Isz`, `Dsz`, `Graph Y=`, `Abs`, `->`, `=>`, `<` `>` `<=` `>=` `<>`, `(-)` …), digits, operators, `,` `:` and letters (via ALPHA) |
+| `program FILE` | type a program listing, pressing `EXE` after each line (open a program area in WRT mode first) |
 | `shot FILE.pgm` | save the 96×64 display |
 | `ascii` | print the display as text |
 | `record DIR [MS]` / `record off` | save a frame every MS ms (default 100) |
@@ -99,6 +123,10 @@ ATAN`. The map came from pressing SHIFT with every key:
   `X=` readout over the bottom of the screen. End it with `Line` instead.
 - Graphs draw at real-calculator speed: `Graph Y=.67Abs X` takes about 3
   seconds of calculator time.
+- Don't keep your own values in X or Y: `Plot` stores its coordinates there.
+- The calculator can't erase single pixels, so animation means `Cls` and
+  redrawing the whole frame. Line art merges where shapes overlap, so keep
+  moving things apart (that's why the enemy walks off to the left).
 
 ## Credits
 

@@ -9,8 +9,12 @@
     press KEY ...      press and release each named key in turn
     hold MS            how long press keeps a key down (default 60)
     gap MS             how long press waits after releasing it (default 60)
-    type TEXT          press the keys for the characters of TEXT (digits,
-                       + - * / . ( ) : and A-Z/space/" which use ALPHA)
+    type TEXT          press the keys for TEXT: program keywords (Plot, Line,
+                       Range, Cls, Lbl, Goto, Isz, Dsz, Graph Y=, Abs, ->, =>,
+                       < > <= >= <>, (-) ...), digits, + - * / . ( ) , : and
+                       A-Z/space/" which use ALPHA
+    program FILE       type a program listing, pressing EXE after each line
+                       (open the program area in WRT mode first)
     shot FILE          save the 96x64 display as a PGM image (4x scaled)
     ascii              print the display as text to stdout
     record DIR [MS]    from now on, save a frame every MS emulated ms
@@ -240,14 +244,73 @@ begin
   FindShifted := 0;
 end;
 
+type
+  TKeyword = record
+    text: string;     { as written in a program listing (case-sensitive) }
+    shift: boolean;   { reached with SHIFT }
+    code: integer;    { key code }
+  end;
+
+const
+  { checked in order, so longer spellings come before their prefixes }
+  NWORDS = 26;
+  Keywords: array[1..NWORDS] of TKeyword = (
+    (text: 'Graph Y='; shift: False; code: 8),
+    (text: 'Range';    shift: False; code: 9),
+    (text: 'Plot';     shift: True;  code: 7),
+    (text: 'Line';     shift: True;  code: 10),
+    (text: 'Cls';      shift: True;  code: 12),
+    (text: 'Abs';      shift: True;  code: 29),
+    (text: 'Lbl';      shift: True;  code: 4),
+    (text: 'Goto';     shift: True;  code: 3),
+    (text: 'Isz';      shift: True;  code: 36),
+    (text: 'Dsz';      shift: True;  code: 41),
+    (text: 'Prog';     shift: False; code: 3),
+    (text: 'Int';      shift: True;  code: 15),
+    (text: 'Frac';     shift: True;  code: 16),
+    (text: 'sin';      shift: False; code: 22),
+    (text: 'cos';      shift: False; code: 23),
+    (text: 'tan';      shift: False; code: 24),
+    (text: 'Ran#';     shift: True;  code: 47),
+    (text: 'pi';       shift: True;  code: 48),
+    (text: '(-)';      shift: False; code: 25),
+    (text: '=>';       shift: True;  code: 31),
+    (text: '->';       shift: False; code: 26),
+    (text: '<>';       shift: True;  code: 33),
+    (text: '>=';       shift: True;  code: 37),
+    (text: '<=';       shift: True;  code: 38),
+    (text: '>';        shift: True;  code: 42),
+    (text: '<';        shift: True;  code: 43));
+
+{ Types TEXT. Program keywords such as Plot, Line, Range, Lbl, Goto, -> and
+  => become their keys (one following space is dropped, as the calculator
+  adds its own); everything else is typed character by character. }
 procedure TypeText (const s: string);
 var
-  i, k, p: integer;
+  i, j, k, p: integer;
   c: char;
+  matched: boolean;
 begin
-  for i := 1 to Length (s) do
+  i := 1;
+  while i <= Length (s) do
   begin
+    matched := False;
+    for j := 1 to NWORDS do
+      with Keywords[j] do
+        if Copy (s, i, Length (text)) = text then
+        begin
+          if shift then PressCode (1);
+          PressCode (code);
+          Inc (i, Length (text));
+          if (i <= Length (s)) and (s[i] = ' ') and (text[Length (text)] in ['a'..'z', 'A'..'Z']) then
+            Inc (i);
+          matched := True;
+          Break;
+        end;
+    if matched then Continue;
+
     c := UpCase (s[i]);
+    Inc (i);
     if c = ',' then begin PressCode (1); PressCode (27); Continue; end;
     k := FindKey (c);
     if (k = 0) and (c = '"') then
@@ -322,6 +385,27 @@ begin
   WriteLn ('+', StringOfChar ('-', 96), '+');
 end;
 
+{ types a program listing: one statement line per line, EXE after each;
+  lines starting with '#' and blank lines are skipped }
+procedure TypeProgram (const fname: string);
+var
+  t: Text;
+  line: string;
+begin
+  if not FileExists (fname) then Fail ('missing ' + fname);
+  AssignFile (t, fname);
+  Reset (t);
+  while not Eof (t) do
+  begin
+    ReadLn (t, line);
+    line := TrimRight (line);
+    if (Trim (line) = '') or (Trim (line)[1] = '#') then Continue;
+    TypeText (Trim (line));
+    PressCode (50);   { EXE ends the statement line }
+  end;
+  CloseFile (t);
+end;
+
 procedure RunScript (var t: Text);
 var
   line, cmd, rest, tok: string;
@@ -363,6 +447,7 @@ begin
     end
     else if cmd = 'init' then PressCode (52)
     else if cmd = 'type' then TypeText (rest)
+    else if cmd = 'program' then TypeProgram (Trim (rest))
     else if cmd = 'press' then
     begin
       rest := Trim (rest);
