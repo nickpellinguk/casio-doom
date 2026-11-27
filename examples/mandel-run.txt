@@ -1,0 +1,28 @@
+# Types examples/mandel.fx into Prog 2 and runs it, recording a frame every
+# 10 seconds of calculator time.
+# Run with:  ./build/fxrun examples/mandel-run.txt
+
+wait 1500
+press AC
+press MODE 2
+wait 300
+press RIGHT RIGHT
+press EXE
+wait 300
+program examples/mandel.fx
+press AC
+press MODE 2
+wait 300
+shot out/mandel-mode.pgm
+press MODE 1
+wait 300
+press AC
+type Prog 2
+press EXE
+record out/mandel-frames 2000
+wait 10800000
+record off
+shot out/mandel-end.pgm
+press GT
+wait 300
+shot out/mandel-text.pgm
