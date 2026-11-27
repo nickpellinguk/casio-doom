@@ -108,11 +108,13 @@ write('pair.fx', [
 nums, w, h = numbers(SCRUBBLY, 3)
 half = nums[:(w // 2 + 1 + 2) // 3]          # numbers covering columns 0..5
 write('scrubbly.fx', [
-    f'# Prog 3: a Scrubbly ({w}x{h} pixels), left column A, top row C.',
-    f'# It is left-right symmetric, so only columns 0-{w // 2} are stored (three per',
-    f'# number) and the renderer mirrors them: E = 2A+{w - 1} puts the mirror',
-    f'# axis on the centre column. W=3 and H={h} are already set by the ladders.',
-    f'2A+{w - 1}→E:' + ':'.join(f'{n}→D:Prog 4' for n in half)])
+    f'# Prog 3: a Scrubbly ({w}x{h} pixels), top row C. It is placed by E, twice',
+    f'# its centre column (E = 2 x left column + {w - 1}), which is also the mirror',
+    f'# axis: it is left-right symmetric, so only columns 0-{w // 2} are stored',
+    '# (three per number) and the renderer mirrors them. E is left unchanged,',
+    '# so two Scrubblies in the same column only need a new C.',
+    f'# W=3 and H={h} are already set by the ladders.',
+    f'E÷2-{(w - 1) // 2}→A:' + ':'.join(f'{n}→D:Prog 4' for n in half)])
 
 # Prog 0: the screen
 tnums, tw, th = numbers(TROGG, 3)
@@ -137,7 +139,7 @@ write('screen.fx', [
     'Prog 1:A+1.4→A:C-2.1→C:Dsz G:Goto 1',
     '5→C:11→A:Prog 2:2→N:77→A:Prog 1',
     f'# ladders: a {rw}x{rh} segment (a pole with three rungs) hung below a ledge;',
-    '# each ladder is one segment, or two for the long one (they may overlap).',
+    '# each ladder is one segment (the long one is two calls; they may overlap).',
     '# A = left column, C = top row, N = segments',
     f'{rung}→P:{rw}→W:{rh}→H:(-){rw}→E:(-){rh}→F',
     '44→C:1→N:13→A:Prog 2:80→A:Prog 1',
@@ -147,8 +149,8 @@ write('screen.fx', [
     f'# the Trogg ({tw}x{th} pixels), standing on the bottom-left ledge; drawn',
     '# before the Scrubblies, while E is still -3 so his mirror image is off-screen',
     '14→C:8→A:' + ':'.join(f'{n}→D:Prog 4' for n in tnums),
-    '# Scrubblies: A = left column, C = top row',
-    '57→C:25→A:Prog 3:64→A:Prog 3:34→C:64→A:Prog 3',
+    '# Scrubblies: E = twice the centre column, C = top row',
+    '57→C:58→E:Prog 3:136→E:Prog 3:34→C:Prog 3',
     '# show the finished screen (y=0 is off-screen, so nothing is drawn)',
     'Graph Y=0'])
 print('Trogg', tnums, '\nScrubbly', nums, '\nledge', seg, '\nladder', rung)

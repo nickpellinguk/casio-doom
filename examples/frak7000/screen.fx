@@ -18,7 +18,7 @@ Lbl 1
 Prog 1:A+1.4→A:C-2.1→C:Dsz G:Goto 1
 5→C:11→A:Prog 2:2→N:77→A:Prog 1
 # ladders: a 3x9 segment (a pole with three rungs) hung below a ledge;
-# each ladder is one segment, or two for the long one (they may overlap).
+# each ladder is one segment (the long one is two calls; they may overlap).
 # A = left column, C = top row, N = segments
 19398217→P:3→W:9→H:(-)3→E:(-)9→F
 44→C:1→N:13→A:Prog 2:80→A:Prog 1
@@ -28,7 +28,7 @@ Prog 1:A+1.4→A:C-2.1→C:Dsz G:Goto 1
 # the Trogg (9x9 pixels), standing on the bottom-left ledge; drawn
 # before the Scrubblies, while E is still -3 so his mirror image is off-screen
 14→C:8→A:126371864→D:Prog 4:52308745→D:Prog 4:656699→D:Prog 4
-# Scrubblies: A = left column, C = top row
-57→C:25→A:Prog 3:64→A:Prog 3:34→C:64→A:Prog 3
+# Scrubblies: E = twice the centre column, C = top row
+57→C:58→E:Prog 3:136→E:Prog 3:34→C:Prog 3
 # show the finished screen (y=0 is off-screen, so nothing is drawn)
 Graph Y=0
