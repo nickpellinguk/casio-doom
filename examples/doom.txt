@@ -1,0 +1,145 @@
+# Fake Doom on a Casio FX-8000G (same programming as the fx-7000G).
+# Run with:  ./build/fxrun examples/doom.txt
+
+wait 1500
+press AC
+
+# Range 1..96 x 1..64, scales 0: one unit per pixel, axes pushed off-screen
+press RANGE
+wait 300
+type 1
+press EXE
+type 96
+press EXE
+type 0
+press EXE
+type 1
+press EXE
+type 64
+press EXE
+type 0
+press EXE
+wait 300
+
+record out/frames 100
+
+# Ceiling edges and top of the back wall
+press PLOT
+type 1,64:
+press PLOT
+type 36,44:
+press LINE
+type :
+press PLOT
+type 60,44:
+press LINE
+type :
+press PLOT
+type 96,64:
+press LINE
+press EXE
+wait 3000
+
+# Floor edges and bottom of the back wall
+press PLOT
+type 96,11:
+press PLOT
+type 60,24:
+press LINE
+type :
+press PLOT
+type 36,24:
+press LINE
+type :
+press PLOT
+type 1,11:
+press LINE
+press EXE
+wait 3000
+
+# Sides of the back wall, and the status bar
+press PLOT
+type 36,24:
+press PLOT
+type 36,44:
+press LINE
+type :
+press PLOT
+type 60,44:
+press PLOT
+type 60,24:
+press LINE
+type :
+press PLOT
+type 1,11:
+press PLOT
+type 96,11:
+press LINE
+press EXE
+wait 3000
+
+# Gun: grip, then barrel
+press PLOT
+type 42,11:
+press PLOT
+type 45,22:
+press LINE
+type :
+press PLOT
+type 51,22:
+press LINE
+type :
+press PLOT
+type 54,11:
+press LINE
+type :
+press PLOT
+type 47,22:
+press PLOT
+type 47,27:
+press LINE
+type :
+press PLOT
+type 49,27:
+press LINE
+type :
+press PLOT
+type 49,22:
+press LINE
+press EXE
+wait 3000
+
+# The enemy: legs, body, arms, head (ending on Line avoids the Plot pointer)
+press PLOT
+type 46,30:
+press PLOT
+type 48,33:
+press LINE
+type :
+press PLOT
+type 50,30:
+press LINE
+type :
+press PLOT
+type 48,33:
+press PLOT
+type 48,39:
+press LINE
+type :
+press PLOT
+type 45,37:
+press PLOT
+type 51,37:
+press LINE
+type :
+press PLOT
+type 47,41:
+press PLOT
+type 49,41:
+press LINE
+press EXE
+wait 3000
+
+record off
+scale 4
+shot out/doom.pgm
