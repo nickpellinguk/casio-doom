@@ -154,7 +154,7 @@ It's five programs in `examples/frak7000/`, all made by `generate.py`:
 
 | Program | File | Bytes | Does |
 |---|---|---|---|
-| Prog 0 | `screen.fx` | 300 | sets up and places everything |
+| Prog 0 | `screen.fx` | 308 | sets up and places everything |
 | Prog 1 | `repeat.fx` | 40 | draws a bitmap N times in a row or column |
 | Prog 2 | `pair.fx` | 16 | draws Prog 1 twice, S columns apart |
 | Prog 3 | `scrubbly.fx` | 37 | a Scrubbly: two numbers, mirrored, placed by its mirror axis |
@@ -164,9 +164,9 @@ It's five programs in `examples/frak7000/`, all made by `generate.py`:
 ./build/fxrun examples/frak7000/run.txt
 ```
 
-**Size:** 462 bytes on the calculator (`bytes.py` gives the same per-file
+**Size:** 470 bytes on the calculator (`bytes.py` gives the same per-file
 counts, with a few bytes' difference in the total). That's down from 1178 for
-the outline version, but still 40 over the fx-7000G's 422. Roughly 290 bytes
+the outline version, but still 48 over the fx-7000G's 422. Roughly 290 bytes
 go on placing 22 objects, so getting under 422 means leaving some out. It
 draws in about a minute and a half of calculator time.
 
@@ -194,9 +194,9 @@ Two limits shaped it:
 - **Placing by E:** a Scrubbly is placed by its mirror axis E rather than
   its left column. The renderer moves A on, but leaves E alone, so the two
   Scrubblies in the same column only need a new top row.
-- **Left out:** the 2-block platform at the bottom right. It had no
-  partner 42 columns away, so it cost a separate call; without it the bottom
-  row is a single Prog 2 pair.
+- **Simplified:** the 2-block platform at the bottom right is a single
+  ledge, under the short ladder. It has no partner 42 columns away, so it
+  costs its own call (8 bytes).
 - **Magic numbers last:** I searched for shorter forms (powers, squares,
   EXP notation) for every number and found none: they're effectively random
   bit patterns. Shrinking the sprites saved far more.
