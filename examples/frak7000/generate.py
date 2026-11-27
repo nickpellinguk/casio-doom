@@ -96,12 +96,13 @@ write('repeat.fx', [
     'Dsz K:Goto 1',
     'J→C'])
 
-# Prog 2: a pair. Many objects come in pairs 42 columns apart (the left and
-# right halves of the screen), so this draws Prog 1 at A and at A+42.
+# Prog 2: a pair S columns apart. Most pairs are 42 apart (the left and
+# right halves of the screen); the lower right-hand ladders are 25 apart.
 write('pair.fx', [
-    '# Prog 2: draws Prog 1 twice: at column A and 42 columns to the right.',
-    '# Many objects on this screen come in pairs that far apart.',
-    'A→Q:Prog 1:Q+42→A:Prog 1'])
+    '# Prog 2: draws Prog 1 twice: at column A and S columns to the right.',
+    '# Most pairs on this screen are 42 apart (left and right halves); the',
+    '# lower right-hand ladders are 25 apart.',
+    'A→Q:Prog 1:Q+S→A:Prog 1'])
 
 # Prog 3: Scrubbly. It's symmetric, so only the left half and the centre
 # column are stored, and the renderer mirrors them about the centre.
@@ -122,13 +123,13 @@ write('screen.fx', [
     '# Frak! front screen (level 1) for the Casio fx-7000G / FX-8000G.',
     '# Layout from room_A_1 in steamfrak; sprites are pixel art drawn by the',
     '# bit renderer (Prog 4). Prog 1 repeats a bitmap (ledges, ladders), Prog 2',
-    '# draws a pair 42 columns apart, Prog 3 draws a Scrubbly. Values shared',
+    '# draws a pair S columns apart, Prog 3 draws a Scrubbly. Values shared',
     '# between calls are set once.',
     'Range 1,95,0,1,63,0',
     'Cls',
     f'# ledges: a {lw}x{lh} segment (strip and rock basket) repeated to the right.',
     '# A = left end, C = top row, N = segments',
-    f'{seg}→P:{lw}→W:{lh}→H:0→E:0→F',
+    f'{seg}→P:{lw}→W:{lh}→H:0→E:0→F:42→S',
     '48→C:6→N:11→A:Prog 2',
     '# the middle-left platform is 6 blocks too (5 in the original), so N is shared',
     '29→C:11→A:Prog 1:1→N:78→A:Prog 1',
@@ -144,8 +145,10 @@ write('screen.fx', [
     '# A = left column, C = top row, N = segments',
     f'{rung}→P:{rw}→W:{rh}→H:(-){rw}→E:(-){rh}→F',
     '44→C:1→N:13→A:Prog 2:80→A:Prog 1',
-    '# the long ladder is two single segments, so its top half pairs with the left one',
-    '26→C:13→A:Prog 2:17→C:55→A:Prog 1:80→A:Prog 1',
+    '# the long ladder is two single segments, so its top half pairs with the left',
+    '# one; A is then 55 (a ladder call leaves A where it was), so its bottom half',
+    '# and the short ladder at 80 are a pair 25 apart with just a new C and S',
+    '26→C:13→A:Prog 2:17→C:25→S:Prog 2',
     f'# sprites: {th} rows tall like the ladder segment, so W=3 and H={th} carry over',
     f'# the Trogg ({tw}x{th} pixels), standing on the bottom-left ledge; drawn',
     '# before the Scrubblies, while E is still -3 so his mirror image is off-screen',
