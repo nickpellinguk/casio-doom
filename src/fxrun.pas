@@ -254,8 +254,9 @@ type
 
 const
   { checked in order, so longer spellings come before their prefixes }
-  NWORDS = 33;
+  NWORDS = 34;
   Keywords: array[1..NWORDS] of TKeyword = (
+    (text: #$E2#$89#$A0; shift: True;  code: 33),   { ≠ }
     (text: #$C2#$B2;     shift: False; code: 16),   { ² }
     { the calculator's own symbols, as UTF-8 }
     (text: #$E2#$87#$92; shift: True;  code: 31),   { ⇒ }

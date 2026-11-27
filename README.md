@@ -28,6 +28,8 @@ This repository has:
   below), and **`examples/mandel-run.txt`**, which runs it.
 - **`examples/frak/`**, a mock-up of the Frak! level 1 front screen (see
   below).
+- **`examples/bits/`**, a renderer that draws numbers as columns of binary
+  dots, used to draw the real Trogg and Scrubbly sprites (see below).
 
 ## Pong
 
@@ -123,6 +125,39 @@ Approximations: the view is the left 290 pixels of the room. The ladder behind
 the Trogg stops above his head, because overlapping outlines merge into a
 blob at this size, and gems and keys are left out.
 
+## Binary column renderer
+
+![The Trogg and a Scrubbly drawn from one or two numbers per column](media/bits-sprites.gif)
+
+`examples/bits/render.fx` (Prog 4) takes a number and draws its binary digits
+as a column of dots, lowest digit at the bottom: a 1 is a dot, a 0 is a gap.
+Then it moves on to the next column, so a picture is just a list of numbers.
+
+- **Inputs:** N is the number, A the column, and C the bottom row. If M
+  isn't 0, its digits carry on above N's from row C+H, for columns taller
+  than one number holds.
+- **Precision:** halving stays exact up to about 34 binary digits on this
+  calculator (it fails by 44), so the sprites use 21 digits per number.
+
+Two programs use it:
+
+- **`sprites.fx`** (Prog 0) draws the Trogg and a Scrubbly at their full BBC
+  Micro size from the black pixels of the real sprites: 59 columns, one or
+  two numbers each (`1060608→N:7→M:Prog 4`). `generate.py` makes it from the
+  sprites in steamfrak. It takes about 2 minutes of calculator time.
+- **`input.fx`** (Prog 5) asks for numbers with `?`, draws each one as the
+  next column, and shows the picture (press EXE for the next number).
+  Typing 1023, 1023, 816, 816, 816, 816, 768, 768, … gives:
+
+  ![FRAK! typed in as column numbers](media/bits-frak.png)
+
+```bash
+./build/fxrun examples/bits/run.txt
+```
+
+The run script types all three programs in, draws the sprites, then types
+"FRAK!" into Prog 5. Together the three programs use 1249 bytes.
+
 ## Build and run
 
 Needs Free Pascal 3.2 (`apt-get install fp-compiler`), plus `curl` and
@@ -189,7 +224,7 @@ starting with `#` are comments.
 |---|---|
 | `wait MS` | run for MS milliseconds of calculator time |
 | `press KEY ...` | press keys in turn; `KEY*N` repeats a key |
-| `type TEXT` | type text: program keywords (`Plot`, `Line`, `Range`, `Cls`, `Lbl`, `Goto`, `Isz`, `Dsz`, `Graph Y=`, `Abs`, `Int`, `Frac`, `Ran#`, `->` or `→`, `=>` or `⇒`, `◢`, `?`, `²`, `=` `<` `>` `<=` `>=` `<>`, `(-)` …), digits, operators (`/` or `÷`), `,` `:` and letters (via ALPHA) |
+| `type TEXT` | type text: program keywords (`Plot`, `Line`, `Range`, `Cls`, `Lbl`, `Goto`, `Isz`, `Dsz`, `Graph Y=`, `Abs`, `Int`, `Frac`, `Ran#`, `->` or `→`, `=>` or `⇒`, `◢`, `?`, `²`, `=` `<` `>` `<=` `>=` `<>` or `≠`, `(-)` …), digits, operators (`/` or `÷`), `,` `:` and letters (via ALPHA) |
 | `program FILE` | type a program listing, pressing `EXE` after each line (open a program area in WRT mode first) |
 | `shot FILE.pgm` | save the 96×64 display |
 | `ascii` | print the display as text |
@@ -234,8 +269,11 @@ ATAN`. The map came from pressing SHIFT with every key:
   variables A–Z; the called program returns when it ends.
 - In WRT mode, the program-slot cursor stays on the last slot used and wraps
   from 9 to 0, so moving to a slot means counting from where it is.
-- `◢` ends a statement, like `:`, and needs something before it.
-  `Plot 3,31◢Y→H` works; a `◢` alone on a line is a syntax error.
+- `◢` ends a statement, like `:`, and needs something before it and after
+  it on the same line. `Plot 3,31◢Y→H` works; a `◢` alone on a line, or at
+  the end of one, is a syntax error.
+- `Graph Y=0◢` (with y=0 off-screen) is a handy way to show the graph screen
+  and wait for EXE without drawing anything.
 
 ## Credits
 
