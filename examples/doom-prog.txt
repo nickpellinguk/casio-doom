@@ -1,0 +1,32 @@
+# Types examples/doom.fx into program area 0, then runs it.
+# Run with:  ./build/fxrun examples/doom-prog.txt
+
+wait 1500
+press AC
+
+# WRT mode, open Prog 0, type the listing
+press MODE 2
+wait 300
+shot out/prog-mode-before.pgm
+press EXE
+wait 300
+program examples/doom.fx
+wait 300
+shot out/prog-listing-end.pgm
+
+# back to WRT's mode screen to see how many bytes the program used
+press AC
+press MODE 2
+wait 300
+shot out/prog-mode-after.pgm
+
+# RUN mode, then Prog 0
+press MODE 1
+wait 300
+press AC
+type Prog 0
+press EXE
+record out/prog-frames 100
+wait 90000
+record off
+shot out/doom-prog.pgm
