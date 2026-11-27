@@ -1,3 +1,5 @@
 # Prog 3: a Scrubbly (11x11 pixels), left column A, feet on row C.
-# Three columns per number; the main program sets W=3 and H=11.
-5449011412→D:Prog 4:2224460507→D:Prog 4:5449898706→D:Prog 4:434474→D:Prog 4
+# It is left-right symmetric, so only columns 0-5 are stored (three per
+# number) and the renderer mirrors them: E = 2A+10 puts the mirror
+# axis on the centre column. The main program sets W=3 and H=11.
+2A+10→E:5449011412→D:Prog 4:2224460507→D:Prog 4

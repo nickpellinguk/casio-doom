@@ -74,11 +74,14 @@ write('render.fx', [
     '# Prog 4: bit renderer. Draws W columns of H dots from the number D,',
     '# starting at column A with the bottom row at C. Each column is H binary',
     '# digits of D, lowest at the bottom: 1 = dot. Leaves A on the next column.',
+    '# Each dot is also plotted mirrored, at column E-A: E is the mirror axis',
+    '# times two for symmetric sprites, and 0 or negative (off-screen, so',
+    '# nothing shows) otherwise.',
     'W→V',
     'Lbl 1',
     'C→B:H→U',
     'Lbl 2',
-    'D÷2→D:Frac D≠0⇒Plot A,B:Int D→D:B+1→B',
+    'D÷2→D:Frac D≠0⇒Plot A,B:Frac D≠0⇒Plot E-A,B:Int D→D:B+1→B',
     'Dsz U:Goto 2',
     'A+1→A',
     'Dsz V:Goto 1'])
@@ -97,13 +100,16 @@ write('repeat.fx', [
     'Dsz K:Goto 1',
     'J→C'])
 
-# Prog 3: Scrubbly, three 11-row columns per number: 33 binary digits is
-# the most that fits in the 10 digits you can type in
+# Prog 3: Scrubbly. It's symmetric, so only columns 0-5 (the left half and
+# the centre) are stored, and the renderer mirrors them about the centre.
 nums, w, h = numbers(SCRUBBLY, 3)
+half = nums[:(w // 2 + 1 + 2) // 3]          # numbers covering columns 0..5
 write('scrubbly.fx', [
     f'# Prog 3: a Scrubbly ({w}x{h} pixels), left column A, feet on row C.',
-    '# Three columns per number; the main program sets W=3 and H=11.',
-    ':'.join(f'{n}→D:Prog 4' for n in nums)])
+    '# It is left-right symmetric, so only columns 0-5 are stored (three per',
+    f'# number) and the renderer mirrors them: E = 2A+{w - 1} puts the mirror',
+    '# axis on the centre column. The main program sets W=3 and H=11.',
+    f'2A+{w - 1}→E:' + ':'.join(f'{n}→D:Prog 4' for n in half)])
 
 # Prog 0: the screen
 tnums, tw, th = numbers(TROGG, 3)
@@ -135,10 +141,11 @@ write('screen.fx', [
     '# sprites: three 11-row columns per number (up to 10 digits); W is',
     '# already 3 from the ladders',
     '11→H',
+    f'# the Trogg ({tw}x{th} pixels), standing on the bottom-left ledge; drawn',
+    '# before the Scrubblies, while E is still -3 so his mirror image is off-screen',
+    '7→A:6→C:' + ':'.join(f'{n}→D:Prog 4' for n in tnums),
     '# Scrubblies: A = left column, C = feet',
     '49→C:24→A:Prog 3:63→A:Prog 3:26→C:63→A:Prog 3',
-    f'# the Trogg ({tw}x{th} pixels), standing on the bottom-left ledge',
-    '7→A:6→C:' + ':'.join(f'{n}→D:Prog 4' for n in tnums),
     '# show the finished screen (y=0 is off-screen, so nothing is drawn)',
     'Graph Y=0'])
 print('Trogg', tnums, '\nScrubbly', nums, '\nledge', seg, '\nladder', rung)
