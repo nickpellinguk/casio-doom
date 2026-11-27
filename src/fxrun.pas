@@ -11,7 +11,7 @@
     gap MS             how long press waits after releasing it (default 60)
     type TEXT          press the keys for TEXT: program keywords (Plot, Line,
                        Range, Cls, Lbl, Goto, Isz, Dsz, Graph Y=, Abs, Frac,
-                       Ran#, -> or →, => or ⇒, ◢, ?, < > <= >= <>, (-) ...),
+                       Ran#, -> or →, => or ⇒, ◢, ?, ², = < > <= >= <>, (-) ...),
                        digits, + - * / ÷ . ( ) , : and
                        A-Z/space/" which use ALPHA
     program FILE       type a program listing, pressing EXE after each line
@@ -254,8 +254,9 @@ type
 
 const
   { checked in order, so longer spellings come before their prefixes }
-  NWORDS = 31;
+  NWORDS = 33;
   Keywords: array[1..NWORDS] of TKeyword = (
+    (text: #$C2#$B2;     shift: False; code: 16),   { ² }
     { the calculator's own symbols, as UTF-8 }
     (text: #$E2#$87#$92; shift: True;  code: 31),   { ⇒ }
     (text: #$E2#$86#$92; shift: False; code: 26),   { → }
@@ -287,7 +288,8 @@ const
     (text: '>=';       shift: True;  code: 37),
     (text: '<=';       shift: True;  code: 38),
     (text: '>';        shift: True;  code: 42),
-    (text: '<';        shift: True;  code: 43));
+    (text: '<';        shift: True;  code: 43),
+    (text: '=';        shift: True;  code: 32));
 
 { Types TEXT. Program keywords such as Plot, Line, Range, Lbl, Goto, -> and
   => become their keys (one following space is dropped, as the calculator

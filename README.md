@@ -24,6 +24,8 @@ This repository has:
   ![Fake Doom typed as direct commands](media/doom-fast.gif)
 - **`examples/pong.fx`**, a playable, turn-based Pong (see below), and
   **`examples/pong-play.txt`**, which types it in and plays a demo game.
+- **`examples/mandel.fx`**, the world's slowest Mandelbrot generator (see
+  below), and **`examples/mandel-run.txt`**, which runs it.
 
 ## Pong
 
@@ -59,6 +61,27 @@ emulator is deterministic, so `Ran#` gives the same serves on every run.
 The flashes of "done" on the text screen, and the brief gaps in the trail
 after each pause, are the calculator's own behaviour: `◢` prints "done", and
 the graph screen is redrawn after it.
+
+## The world's slowest Mandelbrot generator
+
+![The Mandelbrot set appearing over 33 minutes of calculator time](media/mandelbrot.gif)
+
+`examples/mandel.fx` (164 bytes) tests every pixel by iterating z → z² + c up
+to 15 times. The set is symmetric, so it only calculates the top half and
+plots each point twice. Even so, it takes **32 minutes 56 seconds** of
+calculator time. The emulator does it in about 7 seconds.
+
+`examples/mandel-run.txt` types it into Prog 2, runs it and records a frame
+every 2 seconds of calculator time. The time-lapse above uses the frames that
+caught the graph screen.
+
+While it runs, a real calculator mostly shows its text screen: it switches to
+text whenever a statement that isn't a graph command runs, and only shows
+the graph again after a graph command. So the program plots a dot on the
+bottom axis after each column to flash the picture up, and ends with
+`Graph Y=0` (which redraws only the bottom axis) so it finishes on the
+picture. Then the calculator's auto power-off turns the display off 6
+minutes later.
 
 The FX-8000G is the fx-7000G's sibling: same 96×64 screen, keyboard and
 programming language, but with more program memory. Anything drawn here works
@@ -130,7 +153,7 @@ starting with `#` are comments.
 |---|---|
 | `wait MS` | run for MS milliseconds of calculator time |
 | `press KEY ...` | press keys in turn; `KEY*N` repeats a key |
-| `type TEXT` | type text: program keywords (`Plot`, `Line`, `Range`, `Cls`, `Lbl`, `Goto`, `Isz`, `Dsz`, `Graph Y=`, `Abs`, `Int`, `Frac`, `Ran#`, `->` or `→`, `=>` or `⇒`, `◢`, `?`, `<` `>` `<=` `>=` `<>`, `(-)` …), digits, operators (`/` or `÷`), `,` `:` and letters (via ALPHA) |
+| `type TEXT` | type text: program keywords (`Plot`, `Line`, `Range`, `Cls`, `Lbl`, `Goto`, `Isz`, `Dsz`, `Graph Y=`, `Abs`, `Int`, `Frac`, `Ran#`, `->` or `→`, `=>` or `⇒`, `◢`, `?`, `²`, `=` `<` `>` `<=` `>=` `<>`, `(-)` …), digits, operators (`/` or `÷`), `,` `:` and letters (via ALPHA) |
 | `program FILE` | type a program listing, pressing `EXE` after each line (open a program area in WRT mode first) |
 | `shot FILE.pgm` | save the 96×64 display |
 | `ascii` | print the display as text |
