@@ -28,8 +28,7 @@ press EXE
 record out/linux-frames 100
 wait 12000
 shot out/linux-splash.pgm
-press EXE
-wait 4000
+wait 8000
 shot out/linux-login.pgm
 type 1984
 press EXE

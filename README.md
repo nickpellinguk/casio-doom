@@ -241,14 +241,17 @@ Two limits shaped it:
 ![A fake Linux boot: Tux splash, boot log, and a login that refuses everyone](media/linux.gif)
 
 A friend's challenge: run Linux on the fx-7000G. `examples/linux/` fakes it in
-322 bytes, well inside the 422 steps:
+349 bytes, well inside the 422 steps:
 
 1. **Splash:** a 13×16 Tux, drawn by the binary column renderer. He's
-   symmetric, so only half of him is stored, as four numbers. Press EXE to
-   see the boot messages, as on a real boot splash.
+   symmetric, so only half of him is stored, as four numbers. He stays up
+   for about 4½ seconds: four `Graph Y=0` commands, which draw nothing
+   (y=0 is off-screen) but take about 1.1 s each and keep the graph screen
+   showing. A counting loop would switch to the text screen.
 2. **Boot log:** kernel-style timestamps, the real CPU (NEC μPD1007 at
    910 kHz) and the memory (422 steps). All capitals, because that's all you
    can type into a string, like an early Unix terminal; 16 characters a line.
+   It stays up for about 3 seconds (a count-down loop), then an empty line.
 3. **Login:** `FX7000G LOGIN`, then `?`. It only takes numbers, and refuses
    every one with `PERMISSION DENIED` (on two lines: the phrase is 17
    characters, one more than a line holds), forever.
@@ -259,7 +262,7 @@ A friend's challenge: run Linux on the fx-7000G. `examples/linux/` fakes it in
 
 | Program | File | Bytes |
 |---|---|---|
-| Prog 0 | `linux.fx` | 247 |
+| Prog 0 | `linux.fx` | 274 |
 | Prog 1 | `render.fx` | 75 |
 
 `generate.py` makes `linux.fx` from the Tux pixel art.
