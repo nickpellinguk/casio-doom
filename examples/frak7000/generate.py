@@ -8,30 +8,26 @@ import os
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 TROGG = """
-.....#####..
-...##.#...##
-..##...###..
-.##.#..#....
-#..#....#...
-#...#...#...
-.##....#....
-...#..#.....
-...#..#.....
-...#...#....
-...###.###..
+...####..
+..#..####
+.#..##...
+#..#..#..
+#...#.#..
+.##...#..
+..#..#...
+..#..#...
+..###.##.
 """
 SCRUBBLY = """
-..#.....#..
-...#####...
-.##.....##.
-#..##.##..#
-#..##.##..#
-.#.......#.
-#.#######.#
-.#.#...#.#.
-#.........#
-.#########.
-..##...##..
+.#.....#.
+..#####..
+.#.....#.
+#.##.##.#
+#.##.##.#
+.#.....#.
+#.#####.#
+.#.#.#.#.
+..##.##..
 """
 LEDGE = """
 #####
@@ -100,15 +96,15 @@ write('repeat.fx', [
     'Dsz K:Goto 1',
     'J→C'])
 
-# Prog 3: Scrubbly. It's symmetric, so only columns 0-5 (the left half and
-# the centre) are stored, and the renderer mirrors them about the centre.
+# Prog 3: Scrubbly. It's symmetric, so only the left half and the centre
+# column are stored, and the renderer mirrors them about the centre.
 nums, w, h = numbers(SCRUBBLY, 3)
 half = nums[:(w // 2 + 1 + 2) // 3]          # numbers covering columns 0..5
 write('scrubbly.fx', [
     f'# Prog 3: a Scrubbly ({w}x{h} pixels), left column A, top row C.',
-    '# It is left-right symmetric, so only columns 0-5 are stored (three per',
+    f'# It is left-right symmetric, so only columns 0-{w // 2} are stored (three per',
     f'# number) and the renderer mirrors them: E = 2A+{w - 1} puts the mirror',
-    '# axis on the centre column. The main program sets W=3 and H=11.',
+    f'# axis on the centre column. W=3 and H={h} are already set by the ladders.',
     f'2A+{w - 1}→E:' + ':'.join(f'{n}→D:Prog 4' for n in half)])
 
 # Prog 0: the screen
@@ -137,16 +133,13 @@ write('screen.fx', [
     '# A = left column, C = top row, N = segments',
     f'{rung}→P:{rw}→W:{rh}→H:(-){rw}→E:(-){rh}→F',
     '44→C:1→N:13→A:Prog 1:54→A:Prog 1:80→A:Prog 1',
-    '# the short one under the staircase goes last: its top row, 16, is also the Trogg\'s',
-    '26→C:13→A:Prog 1:2→N:54→A:Prog 1:1→N:16→C:80→A:Prog 1',
-    '# sprites: three 11-row columns per number (up to 10 digits); W is',
-    '# already 3 from the ladders',
-    '11→H',
+    '16→C:80→A:Prog 1:26→C:13→A:Prog 1:2→N:54→A:Prog 1',
+    f'# sprites: {th} rows tall like the ladder segment, so W=3 and H={th} carry over',
     f'# the Trogg ({tw}x{th} pixels), standing on the bottom-left ledge; drawn',
     '# before the Scrubblies, while E is still -3 so his mirror image is off-screen',
-    '7→A:' + ':'.join(f'{n}→D:Prog 4' for n in tnums),
+    '14→C:8→A:' + ':'.join(f'{n}→D:Prog 4' for n in tnums),
     '# Scrubblies: A = left column, C = top row',
-    '59→C:24→A:Prog 3:63→A:Prog 3:36→C:63→A:Prog 3',
+    '57→C:25→A:Prog 3:64→A:Prog 3:34→C:64→A:Prog 3',
     '# show the finished screen (y=0 is off-screen, so nothing is drawn)',
     'Graph Y=0'])
 print('Trogg', tnums, '\nScrubbly', nums, '\nledge', seg, '\nladder', rung)

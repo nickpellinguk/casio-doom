@@ -134,9 +134,11 @@ blob at this size, and gems and keys are left out.
 The same screen, aimed at the fx-7000G's 422 steps and looking more like the
 game. Everything is drawn by the binary column renderer as pixel art:
 
-- **Sprites:** an 11×11 Scrubbly and a 12×11 Trogg, three 11-row columns
-  per number. The Scrubbly is left-right symmetric, so only its left half
-  and centre column are stored (two numbers), and the renderer mirrors them:
+- **Sprites:** a 9×9 Scrubbly and a 9×9 Trogg, three 9-row columns per
+  number. They're 9 rows tall like the ladder segment, so they reuse its
+  width and height settings, and the Trogg fits in three numbers. The
+  Scrubbly is left-right symmetric, so only its left half and centre column
+  are stored (two numbers), and the renderer mirrors them:
   it also plots each dot at column E−A, where E is twice the mirror axis. For
   everything else E is 0 or negative, so the mirror image lands off-screen,
   which the calculator silently ignores.
@@ -152,20 +154,20 @@ It's four programs in `examples/frak7000/`, all made by `generate.py`:
 
 | Program | File | Bytes | Does |
 |---|---|---|---|
-| Prog 0 | `screen.fx` | 375 | sets up and places everything |
+| Prog 0 | `screen.fx` | 352 | sets up and places everything |
 | Prog 1 | `repeat.fx` | 40 | draws a bitmap N times in a row or column |
-| Prog 3 | `scrubbly.fx` | 40 | a Scrubbly: two numbers, mirrored |
+| Prog 3 | `scrubbly.fx` | 36 | a Scrubbly: two numbers, mirrored |
 | Prog 4 | `render.fx` | 75 | the renderer, with mirroring |
 
 ```bash
 ./build/fxrun examples/frak7000/run.txt
 ```
 
-**Size:** 526 bytes on the calculator (`bytes.py` gives the same per-file
+**Size:** 499 bytes on the calculator (`bytes.py` gives the same per-file
 counts, with a few bytes' difference in the total). That's down from 1178 for
-the outline version, but still 104 over the fx-7000G's 422. Roughly 290 bytes
+the outline version, but still 77 over the fx-7000G's 422. Roughly 290 bytes
 go on placing 22 objects, so getting under 422 means leaving some out. It
-draws in 1 minute 40 seconds of calculator time.
+draws in about a minute and a half of calculator time.
 
 Two limits shaped it:
 
@@ -178,9 +180,11 @@ Two limits shaped it:
   The middle-left platform is 6 blocks wide like the top two (it's 5 in
   the original), so all three share one length.
 - **Top to bottom:** this renderer draws each column from the top row down
-  (lowest binary digit at the top). That makes the Trogg's numbers 4 digits
-  shorter, because his empty space is at the top right, and lets him share
-  his top row with the ladder drawn just before him.
+  (lowest binary digit at the top), which made the 11-row Trogg's numbers
+  4 digits shorter, because his empty space was at the top right.
+- **Magic numbers last:** I searched for shorter forms (powers, squares,
+  EXP notation) for every number and found none: they're effectively random
+  bit patterns. Shrinking the sprites saved far more.
 
 ## Binary column renderer
 
