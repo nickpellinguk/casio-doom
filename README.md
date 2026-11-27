@@ -31,7 +31,9 @@ This repository has:
 - **`examples/bits/`**, a renderer that draws numbers as columns of binary
   dots, used to draw the real Trogg and Scrubbly sprites (see below).
 - **`examples/frak7000/`**, the Frak! screen again, redone with the renderer
-  and squeezed towards the fx-7000G's memory (see below).
+  and squeezed into the fx-7000G's memory (see below).
+- **`examples/linux/`**, "Linux" for the fx-7000G: a Tux splash, a boot log
+  and a login that says PERMISSION DENIED to everyone (see below).
 
 ## Pong
 
@@ -233,6 +235,34 @@ Two limits shaped it:
   - Tried and rejected: `Mcl` doesn't clear variables inside a program;
     `Range` with five values draws an axis; a condition needs a comparison
     (`Frac D⇒` is a syntax error).
+
+## Linux on the fx-7000G
+
+![A fake Linux boot: Tux splash, boot log, and a login that refuses everyone](media/linux.gif)
+
+A friend's challenge: run Linux on the fx-7000G. `examples/linux/` fakes it in
+322 bytes, well inside the 422 steps:
+
+1. **Splash:** a 13×16 Tux, drawn by the binary column renderer. He's
+   symmetric, so only half of him is stored, as four numbers. Press EXE to
+   see the boot messages, as on a real boot splash.
+2. **Boot log:** kernel-style timestamps, the real CPU (NEC μPD1007 at
+   910 kHz) and the memory (422 steps). All capitals, because that's all you
+   can type into a string, like an early Unix terminal; 16 characters a line.
+3. **Login:** `FX7000G LOGIN`, then `?`. It only takes numbers, and refuses
+   every one with `PERMISSION DENIED` (on two lines: the phrase is 17
+   characters, one more than a line holds), forever.
+
+```bash
+./build/fxrun examples/linux/run.txt
+```
+
+| Program | File | Bytes |
+|---|---|---|
+| Prog 0 | `linux.fx` | 247 |
+| Prog 1 | `render.fx` | 75 |
+
+`generate.py` makes `linux.fx` from the Tux pixel art.
 
 ## Binary column renderer
 

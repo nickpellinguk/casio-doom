@@ -1,0 +1,41 @@
+# Types the fake Linux boot into Prog 0 (and the renderer into Prog 1), then
+# boots it and tries to log in twice.
+# Run with:  ./build/fxrun examples/linux/run.txt
+
+wait 1500
+press AC
+press MODE 2
+wait 300
+press RIGHT
+press EXE
+program examples/linux/render.fx
+press AC
+press MODE 2
+wait 300
+press RIGHT*9
+press EXE
+program examples/linux/linux.fx
+press AC
+press MODE 2
+wait 300
+shot out/linux-mode.pgm
+
+press MODE 1
+wait 300
+press AC
+type Prog 0
+press EXE
+record out/linux-frames 100
+wait 12000
+shot out/linux-splash.pgm
+press EXE
+wait 4000
+shot out/linux-login.pgm
+type 1984
+press EXE
+wait 1500
+type 42
+press EXE
+wait 1500
+record off
+shot out/linux-denied.pgm
