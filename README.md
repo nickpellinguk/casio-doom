@@ -138,14 +138,17 @@ game. Everything is drawn by the binary column renderer as pixel art:
   per number.
 - **Ledges:** one 5×4 segment (a strip with a rock basket), number 829868,
   repeated to the right.
-- **Ladders:** one 5×3 pole-and-rung segment, number 18916, repeated
-  downwards, like the BBC ladder sprite.
+- **Ladders:** one 3×9 segment, a pole with three rungs (number
+  76807972), like the BBC ladder sprite. Each ladder is one segment, or two
+  for the long one, overlapping the ledges where it needs to. (A 5-wide
+  segment three rungs tall would be 45 binary digits, too many for one
+  number.)
 
 It's four programs in `examples/frak7000/`, all made by `generate.py`:
 
 | Program | File | Bytes | Does |
 |---|---|---|---|
-| Prog 0 | `screen.fx` | 384 | sets up and places everything |
+| Prog 0 | `screen.fx` | 378 | sets up and places everything |
 | Prog 1 | `repeat.fx` | 40 | draws a bitmap N times in a row or column |
 | Prog 3 | `scrubbly.fx` | 60 | a Scrubbly: four numbers |
 | Prog 4 | `render.fx` | 63 | the renderer |
@@ -154,9 +157,9 @@ It's four programs in `examples/frak7000/`, all made by `generate.py`:
 ./build/fxrun examples/frak7000/run.txt
 ```
 
-**Size:** 543 bytes on the calculator (`bytes.py` gives the same per-file
+**Size:** 537 bytes on the calculator (`bytes.py` gives the same per-file
 counts, with a few bytes' difference in the total). That's down from 1178 for
-the outline version, but still 121 over the fx-7000G's 422. Roughly 300 bytes
+the outline version, but still 115 over the fx-7000G's 422. Roughly 290 bytes
 go on placing 22 objects, so getting under 422 means leaving some out. It
 draws in 1 minute 40 seconds of calculator time.
 

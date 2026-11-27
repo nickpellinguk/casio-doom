@@ -16,13 +16,15 @@ Cls
 Lbl 1
 Prog 1:A+1.4→A:C-2.1→C:Dsz G:Goto 1
 2→C:10→A:Prog 1:53→A:Prog 1:2→N:77→A:Prog 1
-# ladders: a 5x3 pole-and-rung segment repeated downwards, like the
-# BBC sprite. A = left column, C = bottom row of the top rung, N = rungs
-18916→P:3→H:(-)5→E:(-)3→F
-42→C:3→N:12→A:Prog 1:53→A:Prog 1:79→A:Prog 1
-23→C:2→N:12→A:Prog 1:6→N:53→A:Prog 1:14→C:1→N:79→A:Prog 1
-# sprites: three 11-row columns per number (up to 10 digits)
-3→W:11→H
+# ladders: a 3x9 segment (a pole with three rungs) hung below a ledge;
+# each ladder is one segment, or two for the long one (they may overlap).
+# A = left column, C = bottom row, N = segments
+76807972→P:3→W:9→H:(-)3→E:(-)9→F
+36→C:1→N:13→A:Prog 1:54→A:Prog 1:80→A:Prog 1
+8→C:80→A:Prog 1:18→C:13→A:Prog 1:2→N:54→A:Prog 1
+# sprites: three 11-row columns per number (up to 10 digits); W is
+# already 3 from the ladders
+11→H
 # Scrubblies: A = left column, C = feet
 49→C:24→A:Prog 3:63→A:Prog 3:26→C:63→A:Prog 3
 # the Trogg (12x11 pixels), standing on the bottom-left ledge
