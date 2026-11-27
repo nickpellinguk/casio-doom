@@ -1,0 +1,49 @@
+# Types the Frak! front screen into Prog 0-3 and draws it.
+# Run with:  ./build/fxrun examples/frak/run.txt
+
+wait 1500
+press AC
+
+# subroutines first: Prog 1 ledge, Prog 2 ladder, Prog 3 Scrubbly.
+# The slot cursor stays on the last slot used and wraps from 9 to 0, so
+# step right once for each of 1, 2 and 3, then seven more to wrap to 0.
+press MODE 2
+wait 300
+press RIGHT
+press EXE
+program examples/frak/ledge.fx
+press AC
+press MODE 2
+wait 300
+press RIGHT
+press EXE
+program examples/frak/ladder.fx
+press AC
+press MODE 2
+wait 300
+press RIGHT
+press EXE
+program examples/frak/scrubbly.fx
+
+# the screen itself in Prog 0
+press AC
+press MODE 2
+wait 300
+press RIGHT*7
+press EXE
+program examples/frak/screen.fx
+press AC
+press MODE 2
+wait 300
+shot out/frak-mode.pgm
+
+# run it
+press MODE 1
+wait 300
+press AC
+type Prog 0
+press EXE
+record out/frak-frames 250
+wait 60000
+record off
+shot out/frak.pgm

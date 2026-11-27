@@ -26,6 +26,12 @@ This repository has:
   **`examples/pong-play.txt`**, which types it in and plays a demo game.
 - **`examples/mandel.fx`**, the world's slowest Mandelbrot generator (see
   below), and **`examples/mandel-run.txt`**, which runs it.
+- **`examples/frak/`**, a mock-up of the Frak! level 1 front screen (see
+  below).
+- **`examples/bits/`**, a renderer that draws numbers as columns of binary
+  dots, used to draw the real Trogg and Scrubbly sprites (see below).
+- **`examples/frak7000/`**, the Frak! screen again, redone with the renderer
+  and squeezed towards the fx-7000G's memory (see below).
 
 ## Pong
 
@@ -86,6 +92,180 @@ minutes later.
 The FX-8000G is the fx-7000G's sibling: same 96×64 screen, keyboard and
 programming language, but with more program memory. Anything drawn here works
 the same way on an fx-7000G, as long as it fits in that model's 422 steps.
+
+## Frak! front screen
+
+![The Frak! level 1 front screen drawn on the calculator](media/frak.gif)
+
+A mock-up (not playable) of the first screen of Frak! level 1: the Trogg in
+outline at the bottom left, three Scrubblies, the ledges with their rock
+baskets, and the ladders. Positions come from `room_A_1` in
+[steamfrak](https://github.com/nickpellinguk/steamfrak), scaled down about
+3 times; the sprites are hand-drawn outlines based on the BBC Micro ones.
+
+It's four programs in `examples/frak/`:
+
+| Program | File | Draws |
+|---|---|---|
+| Prog 0 | `screen.fx` | the screen, calling the others |
+| Prog 1 | `ledge.fx` | a run of ledge segments (A, B = left end and top, N = segments) |
+| Prog 2 | `ladder.fx` | a ladder (A, B = centre and top, L = length) |
+| Prog 3 | `scrubbly.fx` | a Scrubbly (A, B = feet) |
+
+```bash
+./build/fxrun examples/frak/run.txt
+```
+
+It draws in about 23 seconds of calculator time and uses 1178 bytes, so it
+needs the FX-8000G's memory: it won't fit in an fx-7000G's 422 steps.
+
+`examples/frak/generate.py` rebuilds the listings from the room data. It
+expects a steamfrak checkout next to this repository, or its path as an
+argument.
+
+Approximations: the view is the left 290 pixels of the room. The ladder behind
+the Trogg stops above his head, because overlapping outlines merge into a
+blob at this size, and gems and keys are left out.
+
+## Frak! front screen, compact version
+
+![The compact Frak! screen building up](media/frak7000.gif)
+
+The same screen, aimed at the fx-7000G's 422 steps and looking more like the
+game. Everything is drawn by the binary column renderer as pixel art:
+
+- **Sprites:** a 9×9 Scrubbly and a 9×9 Trogg, three 9-row columns per
+  number. They're 9 rows tall like the ladder segment, so they reuse its
+  width and height settings, and the Trogg fits in three numbers. The
+  Scrubbly is left-right symmetric, so only its left half and centre column
+  are stored (two numbers), and the renderer mirrors them:
+  it also plots each dot at column E−A, where E is twice the mirror axis. For
+  everything else E is 0 or negative, so the mirror image lands off-screen,
+  which the calculator silently ignores.
+- **Ledges:** one 5×4 segment (a strip with a rock basket), number 219475,
+  repeated to the right.
+- **Ladders:** one 3×9 segment, a pole with three rungs (number
+  19398217), like the BBC ladder sprite. Each ladder is one segment, or two
+  for the long one, overlapping the ledges where it needs to. (A 5-wide
+  segment three rungs tall would be 45 binary digits, too many for one
+  number.)
+
+It's five programs in `examples/frak7000/`, plus a little setup, all made by
+`generate.py`:
+
+| Program | File | Bytes | Does |
+|---|---|---|---|
+| Prog 0 | `screen.fx` | 250 | places everything |
+| Prog 1 | `repeat.fx` | 40 | draws a bitmap N times in a row or column |
+| Prog 2 | `pair.fx` | 16 | draws Prog 1 twice, S columns apart |
+| Prog 3 | `scrubbly.fx` | 22 | a Scrubbly: two numbers, mirrored, placed by its mirror axis |
+| Prog 4 | `render.fx` | 75 | the renderer, with mirroring |
+
+**Setup, by hand in RUN mode, before running Prog 0:**
+
+1. Set the Range to `1, 95, 0, 1, 63, 0` on the Range screen. That also
+   clears the graph.
+2. Store the sprite and segment numbers in letters (`setup.fx`):
+
+   ```
+   219475→I
+   19398217→L
+   126371864→T
+   52308745→R
+   656699→G
+   90786392→M
+   34266→Z
+   ```
+
+The 26 letter variables are separate from program memory, so these cost no
+program steps, and the programs use one letter for each number instead of up
+to 9 digits. Both settings survive between runs; running Prog 0 again just
+redraws the same picture over itself.
+
+```bash
+./build/fxrun examples/frak7000/run.txt
+```
+
+**Size:** 397 bytes on the calculator, which **fits the fx-7000G's 422 steps**
+with 25 to spare. (`bytes.py` gives the per-file counts; its total is a few
+bytes higher.) It started at 1178 for the outline version; moving the setup
+out of Prog 0 took it from 455 to 397. It draws in about a minute and a half
+of calculator time. It's only been run on the emulated FX-8000G, not on a
+real fx-7000G.
+
+Two limits shaped it:
+
+- **10 typed digits:** the calculator works with about 13 digits (halving is
+  exact up to 39 binary digits), but only 10 can be typed into a number. So
+  each number holds at most 33 binary digits: three 11-row columns.
+- **Byte cost:** every digit and command costs a byte, so values shared by
+  several objects (a row, a length) are set once. The five blocks of the
+  staircase step evenly (20 room pixels right and 7 down), so Prog 1 draws
+  them in one call, with its steps E and F set to the staircase's slope.
+  The middle-left platform is 6 blocks wide like the top two (it's 5 in
+  the original), so all three share one length.
+- **Top to bottom:** this renderer draws each column from the top row down
+  (lowest binary digit at the top), which made the 11-row Trogg's numbers
+  4 digits shorter, because his empty space was at the top right.
+- **Pairs:** many objects come in pairs 42 columns apart (the platforms,
+  ladders and bottom ledges on the left and right halves of the screen), so
+  Prog 2 draws one at A and another at A+S, with S=42. A few objects moved
+  a pixel to line up, and the long ladder became two single segments so its
+  top half pairs with the left ladder. The lower right-hand ladders are a
+  pair 25 apart, so they're drawn last with S=25. (A fixed +25 Prog 2 for
+  the right-hand pairs alone was 11 bytes worse.)
+- **Placing by E:** a Scrubbly is placed by its mirror axis E rather than
+  its left column. The renderer moves A on, but leaves E alone, so the two
+  Scrubblies in the same column only need a new top row.
+- **Simplified:** the 2-block platform at the bottom right is a single
+  ledge, under the short ladder. It has no partner 42 columns away, so it
+  costs its own call (8 bytes).
+- **Magic numbers last:** no number has a shorter form (powers, squares,
+  EXP notation): they're effectively random bit patterns. The final pass
+  found other small savings instead:
+  - `Range` clears the graph screen, so `Cls` isn't needed.
+  - The Scrubbly's second number held column 5, which the mirror draws
+    anyway; with it zeroed the number is 5 digits, not 9.
+  - Staircase steps of 1 and −2 instead of 1.4 and −2.1.
+  - The bottom ledges are 3 rows higher, so the Trogg's top row is 17, where
+    the ladders leave C. The lower ladders now reach their ledges, and the
+    ladder above the Trogg comes down to his head, as in the original.
+  - Tried and rejected: `Mcl` doesn't clear variables inside a program;
+    `Range` with five values draws an axis; a condition needs a comparison
+    (`Frac D⇒` is a syntax error).
+
+## Binary column renderer
+
+![The Trogg and a Scrubbly drawn from one or two numbers per column](media/bits-sprites.gif)
+
+`examples/bits/render.fx` (Prog 4) takes a number and draws its binary digits
+as a column of dots, lowest digit at the bottom: a 1 is a dot, a 0 is a gap.
+Then it moves on to the next column, so a picture is just a list of numbers.
+
+- **Inputs:** N is the number, A the column, and C the bottom row. If M
+  isn't 0, its digits carry on above N's from row C+H, for columns taller
+  than one number holds.
+- **Precision:** halving stays exact up to about 34 binary digits on this
+  calculator (it fails by 44), so the sprites use 21 digits per number.
+
+Two programs use it:
+
+- **`sprites.fx`** (Prog 0) draws the Trogg and a Scrubbly at their full BBC
+  Micro size from the black pixels of the real sprites: 59 columns, one or
+  two numbers each (`1060608→N:7→M:Prog 4`). `generate.py` makes it from the
+  sprites in steamfrak. It takes about 2 minutes of calculator time.
+- **`input.fx`** (Prog 5) asks for numbers with `?`, draws each one as the
+  next column, and shows the picture (press EXE for the next number).
+  Typing 1023, 1023, 816, 816, 816, 816, 768, 768, … gives:
+
+  ![FRAK! typed in as column numbers](media/bits-frak.png)
+
+```bash
+./build/fxrun examples/bits/run.txt
+```
+
+The run script types all three programs in, draws the sprites, then types
+"FRAK!" into Prog 5. Together the three programs use 1249 bytes.
 
 ## Build and run
 
@@ -153,7 +333,7 @@ starting with `#` are comments.
 |---|---|
 | `wait MS` | run for MS milliseconds of calculator time |
 | `press KEY ...` | press keys in turn; `KEY*N` repeats a key |
-| `type TEXT` | type text: program keywords (`Plot`, `Line`, `Range`, `Cls`, `Lbl`, `Goto`, `Isz`, `Dsz`, `Graph Y=`, `Abs`, `Int`, `Frac`, `Ran#`, `->` or `→`, `=>` or `⇒`, `◢`, `?`, `²`, `=` `<` `>` `<=` `>=` `<>`, `(-)` …), digits, operators (`/` or `÷`), `,` `:` and letters (via ALPHA) |
+| `type TEXT` | type text: program keywords (`Plot`, `Line`, `Range`, `Cls`, `Lbl`, `Goto`, `Isz`, `Dsz`, `Graph Y=`, `Abs`, `Int`, `Frac`, `Ran#`, `->` or `→`, `=>` or `⇒`, `◢`, `?`, `²`, `=` `<` `>` `<=` `>=` `<>` or `≠`, `(-)` …), digits, operators (`/` or `÷`), `,` `:` and letters (via ALPHA) |
 | `program FILE` | type a program listing, pressing `EXE` after each line (open a program area in WRT mode first) |
 | `shot FILE.pgm` | save the 96×64 display |
 | `ascii` | print the display as text |
@@ -194,8 +374,15 @@ ATAN`. The map came from pressing SHIFT with every key:
   (you can't flip to the graph while it waits), and `Plot x,y◢`, which stops
   on the graph with a pointer you move with the arrow keys. There's no way to
   read a key while a program keeps running.
-- `◢` ends a statement, like `:`, and needs something before it.
-  `Plot 3,31◢Y→H` works; a `◢` alone on a line is a syntax error.
+- Programs can call each other as subroutines (`Prog 1`), sharing the
+  variables A–Z; the called program returns when it ends.
+- In WRT mode, the program-slot cursor stays on the last slot used and wraps
+  from 9 to 0, so moving to a slot means counting from where it is.
+- `◢` ends a statement, like `:`, and needs something before it and after
+  it on the same line. `Plot 3,31◢Y→H` works; a `◢` alone on a line, or at
+  the end of one, is a syntax error.
+- `Graph Y=0◢` (with y=0 off-screen) is a handy way to show the graph screen
+  and wait for EXE without drawing anything.
 
 ## Credits
 
