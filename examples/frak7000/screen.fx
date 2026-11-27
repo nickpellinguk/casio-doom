@@ -8,11 +8,12 @@ Cls
 # A = left end, C = bottom row, N = segments
 829868→P:5→W:4→H:0→E:0→F
 45→C:6→N:11→A:Prog 1:53→A:Prog 1
-26→C:5→N:11→A:Prog 1:1→N:53→A:Prog 1:78→A:Prog 1
-# the staircase: four single ledges stepping down to the right
-24→C:59→A:4→G
+26→C:5→N:11→A:Prog 1:1→N:78→A:Prog 1
+# the staircase: five single ledges, each 20 room pixels right and 7 down
+# from the last (about 6.4 and 2.1 here; Prog 1 already moves A on 5)
+53→A:5→G
 Lbl 1
-Prog 1:A+1.3→A:C-2.3→C:Dsz G:Goto 1
+Prog 1:A+1.4→A:C-2.1→C:Dsz G:Goto 1
 2→C:10→A:Prog 1:53→A:Prog 1:2→N:77→A:Prog 1
 # ladders: a 5x3 pole-and-rung segment repeated downwards, like the
 # BBC sprite. A = left column, C = bottom row of the top rung, N = rungs
