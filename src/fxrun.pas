@@ -10,8 +10,9 @@
     hold MS            how long press keeps a key down (default 60)
     gap MS             how long press waits after releasing it (default 60)
     type TEXT          press the keys for TEXT: program keywords (Plot, Line,
-                       Range, Cls, Lbl, Goto, Isz, Dsz, Graph Y=, Abs, ->, =>,
-                       < > <= >= <>, (-) ...), digits, + - * / . ( ) , : and
+                       Range, Cls, Lbl, Goto, Isz, Dsz, Graph Y=, Abs, Frac,
+                       Ran#, -> or →, => or ⇒, ◢, ?, < > <= >= <>, (-) ...),
+                       digits, + - * / ÷ . ( ) , : and
                        A-Z/space/" which use ALPHA
     program FILE       type a program listing, pressing EXE after each line
                        (open the program area in WRT mode first)
@@ -253,8 +254,14 @@ type
 
 const
   { checked in order, so longer spellings come before their prefixes }
-  NWORDS = 26;
+  NWORDS = 31;
   Keywords: array[1..NWORDS] of TKeyword = (
+    { the calculator's own symbols, as UTF-8 }
+    (text: #$E2#$87#$92; shift: True;  code: 31),   { ⇒ }
+    (text: #$E2#$86#$92; shift: False; code: 26),   { → }
+    (text: #$E2#$97#$A2; shift: True;  code: 13),   { ◢ }
+    (text: #$C3#$B7;     shift: False; code: 40),   { ÷ }
+    (text: '?';          shift: True;  code: 26),
     (text: 'Graph Y='; shift: False; code: 8),
     (text: 'Range';    shift: False; code: 9),
     (text: 'Plot';     shift: True;  code: 7),

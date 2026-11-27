@@ -1,0 +1,52 @@
+# Types examples/pong.fx into Prog 1 and plays a few rallies.
+# Run with:  ./build/fxrun examples/pong-play.txt
+# The emulator is deterministic, so Ran# gives the same serves every run:
+# they arrive at heights 60, 49, 53 and 41. This plays the first three
+# (the second 2 pixels off, still inside the paddle) and misses the fourth.
+# Each move is how far to push the pointer from its start at 31.
+
+wait 1500
+press AC
+press MODE 2
+wait 300
+press RIGHT
+press EXE
+wait 300
+program examples/pong.fx
+press AC
+press MODE 2
+wait 300
+shot out/pong-mode.pgm
+press MODE 1
+wait 300
+press AC
+type Prog 1
+press EXE
+record out/pong-frames 100
+
+# rally 1: ball arrives at 60
+wait 12000
+press UP*29
+press EXE
+
+# rally 2: ball arrives at 49; aim at 47
+wait 12000
+press UP*16
+press EXE
+
+# rally 3: ball arrives at 53
+wait 12000
+press UP*22
+press EXE
+
+# rally 4: ball arrives at 41; aim at 26 and miss
+wait 12000
+press DOWN*5
+press EXE
+
+wait 12000
+record off
+shot out/pong-gameover.pgm
+press GT
+wait 300
+shot out/pong-final.pgm

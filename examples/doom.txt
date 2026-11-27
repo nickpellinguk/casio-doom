@@ -4,7 +4,7 @@
 wait 1500
 press AC
 
-# Range 1..96 x 1..64, scales 0: one unit per pixel, axes pushed off-screen
+# Range 1..96 x 1..64, scales 0: about one unit per pixel, axes pushed off-screen
 press RANGE
 wait 300
 type 1

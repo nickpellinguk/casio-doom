@@ -10,8 +10,9 @@
 #   ->  is the STO arrow     =>  is the jump arrow (SHIFT 7)
 #   /   is the divide key    lines starting with # are comments
 #
-# Range 1..96 x 1..64 with scales 0 makes one unit one pixel and moves the
-# axes off-screen.
+# Range 1..96 x 1..64 with scales 0 makes one unit roughly one pixel and
+# moves the axes off-screen. (Exactly one pixel is 0..94 x 0..62: the screen
+# has 95 x 63 graph pixels.)
 Range 1,96,0,1,64,0
 2->S
 Lbl 1
