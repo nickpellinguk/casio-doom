@@ -154,7 +154,7 @@ It's five programs in `examples/frak7000/`, all made by `generate.py`:
 
 | Program | File | Bytes | Does |
 |---|---|---|---|
-| Prog 0 | `screen.fx` | 320 | sets up and places everything |
+| Prog 0 | `screen.fx` | 315 | sets up and places everything |
 | Prog 1 | `repeat.fx` | 40 | draws a bitmap N times in a row or column |
 | Prog 2 | `pair.fx` | 17 | draws Prog 1 twice, 42 columns apart |
 | Prog 3 | `scrubbly.fx` | 37 | a Scrubbly: two numbers, mirrored, placed by its mirror axis |
@@ -164,9 +164,9 @@ It's five programs in `examples/frak7000/`, all made by `generate.py`:
 ./build/fxrun examples/frak7000/run.txt
 ```
 
-**Size:** 485 bytes on the calculator (`bytes.py` gives the same per-file
+**Size:** 478 bytes on the calculator (`bytes.py` gives the same per-file
 counts, with a few bytes' difference in the total). That's down from 1178 for
-the outline version, but still 63 over the fx-7000G's 422. Roughly 290 bytes
+the outline version, but still 56 over the fx-7000G's 422. Roughly 290 bytes
 go on placing 22 objects, so getting under 422 means leaving some out. It
 draws in about a minute and a half of calculator time.
 
@@ -176,8 +176,9 @@ Two limits shaped it:
   exact up to 39 binary digits), but only 10 can be typed into a number. So
   each number holds at most 33 binary digits: three 11-row columns.
 - **Byte cost:** every digit and command costs a byte, so values shared by
-  several objects (a row, a length) are set once, and one loop draws all
-  five blocks of the staircase (they step 20 room pixels right and 7 down).
+  several objects (a row, a length) are set once. The five blocks of the
+  staircase step evenly (20 room pixels right and 7 down), so Prog 1 draws
+  them in one call, with its steps E and F set to the staircase's slope.
   The middle-left platform is 6 blocks wide like the top two (it's 5 in
   the original), so all three share one length.
 - **Top to bottom:** this renderer draws each column from the top row down
