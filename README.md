@@ -30,6 +30,8 @@ This repository has:
   below).
 - **`examples/bits/`**, a renderer that draws numbers as columns of binary
   dots, used to draw the real Trogg and Scrubbly sprites (see below).
+- **`examples/frak7000/`**, the Frak! screen again, redone with the renderer
+  and squeezed towards the fx-7000G's memory (see below).
 
 ## Pong
 
@@ -124,6 +126,48 @@ argument.
 Approximations: the view is the left 290 pixels of the room. The ladder behind
 the Trogg stops above his head, because overlapping outlines merge into a
 blob at this size, and gems and keys are left out.
+
+## Frak! front screen, compact version
+
+![The compact Frak! screen building up over 1 minute 40 seconds](media/frak7000.gif)
+
+The same screen, aimed at the fx-7000G's 422 steps and looking more like the
+game. Everything is drawn by the binary column renderer as pixel art:
+
+- **Sprites:** an 11×11 Scrubbly and a 12×11 Trogg, three 11-row columns
+  per number.
+- **Ledges:** one 5×4 segment (a strip with a rock basket), number 829868,
+  repeated to the right.
+- **Ladders:** one 5×3 pole-and-rung segment, number 18916, repeated
+  downwards, like the BBC ladder sprite.
+
+It's four programs in `examples/frak7000/`, all made by `generate.py`:
+
+| Program | File | Bytes | Does |
+|---|---|---|---|
+| Prog 0 | `screen.fx` | 401 | sets up and places everything |
+| Prog 1 | `repeat.fx` | 40 | draws a bitmap N times in a row or column |
+| Prog 3 | `scrubbly.fx` | 60 | a Scrubbly: four numbers |
+| Prog 4 | `render.fx` | 63 | the renderer |
+
+```bash
+./build/fxrun examples/frak7000/run.txt
+```
+
+**Size:** 560 bytes on the calculator (`bytes.py` gives the same per-file
+counts, with a few bytes' difference in the total). That's down from 1178 for
+the outline version, but still 138 over the fx-7000G's 422. Roughly 300 bytes
+go on placing 22 objects, so getting under 422 means leaving some out. It
+draws in 1 minute 40 seconds of calculator time.
+
+Two limits shaped it:
+
+- **10 typed digits:** the calculator works with about 13 digits (halving is
+  exact up to 39 binary digits), but only 10 can be typed into a number. So
+  each number holds at most 33 binary digits: three 11-row columns.
+- **Byte cost:** every digit and command costs a byte, so values shared by
+  several objects (a row, a length) are set once, and a loop draws the
+  staircase.
 
 ## Binary column renderer
 
