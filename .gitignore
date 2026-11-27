@@ -1,0 +1,14 @@
+# Downloaded by fetch.sh: the emulator core and Casio's ROM images
+/rom/
+/src/def.pas
+/src/cpu.pas
+/src/decode.pas
+/src/exec.pas
+/src/lcd.pas
+/src/keyboard.pas
+/src/fa80.pas
+/downloads/
+
+# Build output and screenshots
+/build/
+/out/
